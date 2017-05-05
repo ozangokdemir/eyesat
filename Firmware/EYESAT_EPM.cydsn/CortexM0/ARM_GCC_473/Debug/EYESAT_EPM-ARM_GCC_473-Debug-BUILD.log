@@ -1,0 +1,63 @@
+--------------- Build Started: 07/15/2015 13:51:13 Project: EYESAT_EPM, Configuration: ARM GCC 4.7.3 Debug ---------------
+cydsfit.exe "-.appdatapath" "F:\Utilisateurs\demasson\AppData\Local\Cypress Semiconductor\PSoC Creator\3.0" "-.fdsnotice" "-.fdswarpdepfile=warp_dependencies.txt" "-.fdselabdepfile=elab_dependencies.txt" "-.fdsbldfile=generated_files.txt" "-p" "F:\Utilisateurs\demasson\Documents\EPM\PSoC Creator\EPM2.0\EPM_parfait\EYESAT_EPM\EYESAT_EPM.cydsn\EYESAT_EPM.cyprj" "-d" "CY8C4245AXI-483" "-s" "F:\Utilisateurs\demasson\Documents\EPM\PSoC Creator\EPM2.0\EPM_parfait\EYESAT_EPM\EYESAT_EPM.cydsn\Generated_Source\PSoC4" "--" "-yv2" "-v3" "-ygs" "-q10" "-o2" "-.fftcfgtype=LE"
+Elaborating Design...
+HDL Generation ...
+Synthesis ...
+Place and Route ...
+Tech mapping ...
+ADD: pft.M0040: information: The following 11 pin(s) will be assigned a location by the fitter: \I2CS:scl(0)\, \I2CS:sda(0)\, cap1(0), cap2(0), DIR(0), hall(0), M0(0), M1(0), nEN(0), nSLEEP(0), STEP(0)
+Info: mpr.M0037: Unused pieces of the design have been optimized out. See the Tech mapping section of the report file for details. (App=cydsfit)
+Analog Placement ...
+Analog Routing ...
+Analog Code Generation ...
+Digital Placement ...
+Digital Routing ...
+Bitstream Generation ...
+Static timing analysis ...
+API Generation ...
+Dependency Generation ...
+Clean Temporary Files ...
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\main.lst -ffunction-sections -c .\main.c -o .\CortexM0\ARM_GCC_473\Debug\main.o
+.\main.c: In function 'calcul_PDS_position':
+.\main.c:158:5: warning: implicit declaration of function 'abs' [-Wimplicit-function-declaration]
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cyfitter_cfg.lst -ffunction-sections -c .\Generated_Source\PSoC4\cyfitter_cfg.c -o .\CortexM0\ARM_GCC_473\Debug\cyfitter_cfg.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cymetadata.lst -ffunction-sections -c .\Generated_Source\PSoC4\cymetadata.c -o .\CortexM0\ARM_GCC_473\Debug\cymetadata.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_INT.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_I2C_INT.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_INT.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_I2C.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_I2C.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_BOOT.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_I2C_BOOT.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_BOOT.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_SLAVE.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_I2C_SLAVE.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_SLAVE.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_PM.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_PM.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_PM.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_BOOT.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_BOOT.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_BOOT.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\PWM.lst -ffunction-sections -c .\Generated_Source\PSoC4\PWM.c -o .\CortexM0\ARM_GCC_473\Debug\PWM.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\PWM_PM.lst -ffunction-sections -c .\Generated_Source\PSoC4\PWM_PM.c -o .\CortexM0\ARM_GCC_473\Debug\PWM_PM.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\Clock.lst -ffunction-sections -c .\Generated_Source\PSoC4\Clock.c -o .\CortexM0\ARM_GCC_473\Debug\Clock.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\STEP.lst -ffunction-sections -c .\Generated_Source\PSoC4\STEP.c -o .\CortexM0\ARM_GCC_473\Debug\STEP.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\Control_Reg.lst -ffunction-sections -c .\Generated_Source\PSoC4\Control_Reg.c -o .\CortexM0\ARM_GCC_473\Debug\Control_Reg.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\DIR.lst -ffunction-sections -c .\Generated_Source\PSoC4\DIR.c -o .\CortexM0\ARM_GCC_473\Debug\DIR.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\nEN.lst -ffunction-sections -c .\Generated_Source\PSoC4\nEN.c -o .\CortexM0\ARM_GCC_473\Debug\nEN.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\Counter_1.lst -ffunction-sections -c .\Generated_Source\PSoC4\Counter_1.c -o .\CortexM0\ARM_GCC_473\Debug\Counter_1.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\Counter_1_PM.lst -ffunction-sections -c .\Generated_Source\PSoC4\Counter_1_PM.c -o .\CortexM0\ARM_GCC_473\Debug\Counter_1_PM.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\hall.lst -ffunction-sections -c .\Generated_Source\PSoC4\hall.c -o .\CortexM0\ARM_GCC_473\Debug\hall.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\nSLEEP.lst -ffunction-sections -c .\Generated_Source\PSoC4\nSLEEP.c -o .\CortexM0\ARM_GCC_473\Debug\nSLEEP.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cap1.lst -ffunction-sections -c .\Generated_Source\PSoC4\cap1.c -o .\CortexM0\ARM_GCC_473\Debug\cap1.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cap2.lst -ffunction-sections -c .\Generated_Source\PSoC4\cap2.c -o .\CortexM0\ARM_GCC_473\Debug\cap2.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\M0.lst -ffunction-sections -c .\Generated_Source\PSoC4\M0.c -o .\CortexM0\ARM_GCC_473\Debug\M0.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\M1.lst -ffunction-sections -c .\Generated_Source\PSoC4\M1.c -o .\CortexM0\ARM_GCC_473\Debug\M1.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\EEPROM.lst -ffunction-sections -c .\Generated_Source\PSoC4\EEPROM.c -o .\CortexM0\ARM_GCC_473\Debug\EEPROM.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_sda.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_sda.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_sda.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\I2CS_scl.lst -ffunction-sections -c .\Generated_Source\PSoC4\I2CS_scl.c -o .\CortexM0\ARM_GCC_473\Debug\I2CS_scl.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\Cm0Start.lst -ffunction-sections -c .\Generated_Source\PSoC4\Cm0Start.c -o .\CortexM0\ARM_GCC_473\Debug\Cm0Start.o
+arm-none-eabi-as.exe -I. -I./Generated_Source/PSoC4 -mcpu=cortex-m0 -mthumb -g -alh=.\CortexM0\ARM_GCC_473\Debug/CyBootAsmGnu.lst -o .\CortexM0\ARM_GCC_473\Debug\CyBootAsmGnu.o .\Generated_Source\PSoC4\CyBootAsmGnu.s
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\CyFlash.lst -ffunction-sections -c .\Generated_Source\PSoC4\CyFlash.c -o .\CortexM0\ARM_GCC_473\Debug\CyFlash.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\CyLib.lst -ffunction-sections -c .\Generated_Source\PSoC4\CyLib.c -o .\CortexM0\ARM_GCC_473\Debug\CyLib.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cyPm.lst -ffunction-sections -c .\Generated_Source\PSoC4\cyPm.c -o .\CortexM0\ARM_GCC_473\Debug\cyPm.o
+arm-none-eabi-gcc.exe -I. -I./Generated_Source/PSoC4 -Wno-main -mcpu=cortex-m0 -mthumb -Wall -g -D DEBUG -Wa,-alh=.\CortexM0\ARM_GCC_473\Debug\cyutils.lst -ffunction-sections -c .\Generated_Source\PSoC4\cyutils.c -o .\CortexM0\ARM_GCC_473\Debug\cyutils.o
+arm-none-eabi-ar.exe -rs .\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.a .\CortexM0\ARM_GCC_473\Debug\cyfitter_cfg.o .\CortexM0\ARM_GCC_473\Debug\I2CS.o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_INT.o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C.o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_BOOT.o .\CortexM0\ARM_GCC_473\Debug\I2CS_I2C_SLAVE.o .\CortexM0\ARM_GCC_473\Debug\I2CS_PM.o .\CortexM0\ARM_GCC_473\Debug\I2CS_BOOT.o .\CortexM0\ARM_GCC_473\Debug\PWM.o .\CortexM0\ARM_GCC_473\Debug\PWM_PM.o .\CortexM0\ARM_GCC_473\Debug\Clock.o .\CortexM0\ARM_GCC_473\Debug\STEP.o .\CortexM0\ARM_GCC_473\Debug\Control_Reg.o .\CortexM0\ARM_GCC_473\Debug\DIR.o .\CortexM0\ARM_GCC_473\Debug\nEN.o .\CortexM0\ARM_GCC_473\Debug\Counter_1.o .\CortexM0\ARM_GCC_473\Debug\Counter_1_PM.o .\CortexM0\ARM_GCC_473\Debug\hall.o .\CortexM0\ARM_GCC_473\Debug\nSLEEP.o .\CortexM0\ARM_GCC_473\Debug\cap1.o .\CortexM0\ARM_GCC_473\Debug\cap2.o .\CortexM0\ARM_GCC_473\Debug\M0.o .\CortexM0\ARM_GCC_473\Debug\M1.o .\CortexM0\ARM_GCC_473\Debug\EEPROM.o .\CortexM0\ARM_GCC_473\Debug\I2CS_sda.o .\CortexM0\ARM_GCC_473\Debug\I2CS_scl.o .\CortexM0\ARM_GCC_473\Debug\CyBootAsmGnu.o .\CortexM0\ARM_GCC_473\Debug\CyFlash.o .\CortexM0\ARM_GCC_473\Debug\CyLib.o .\CortexM0\ARM_GCC_473\Debug\cyPm.o .\CortexM0\ARM_GCC_473\Debug\cyutils.o
+arm-none-eabi-ar.exe: creating .\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.a
+arm-none-eabi-gcc.exe -mthumb -march=armv6-m -T .\Generated_Source\PSoC4\cm0gcc.ld -g -Wl,-Map,.\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.map -specs=nano.specs -Wl,--gc-sections -Wl,--start-group -o .\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.elf .\CortexM0\ARM_GCC_473\Debug\main.o .\CortexM0\ARM_GCC_473\Debug\cymetadata.o .\CortexM0\ARM_GCC_473\Debug\Cm0Start.o .\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.a "F:\appli\Cypress\PSoC Creator\3.0\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CortexM0\ARM_GCC_473\Debug\CyComponentLibrary.a" -Wl,--end-group
+cyelftool.exe -C "F:\Utilisateurs\demasson\Documents\EPM\PSoC Creator\EPM2.0\EPM_parfait\EYESAT_EPM\EYESAT_EPM.cydsn\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.elf" --flash_size 32768 --flash_row_size 128
+cyelftool.exe -S "F:\Utilisateurs\demasson\Documents\EPM\PSoC Creator\EPM2.0\EPM_parfait\EYESAT_EPM\EYESAT_EPM.cydsn\CortexM0\ARM_GCC_473\Debug\EYESAT_EPM.elf"
+Flash used: 9376 of 32768 bytes (28,6 %).
+SRAM used: 1628 of 4096 bytes (39,7 %).
+--------------- Build Succeeded: 07/15/2015 13:51:43 ---------------

@@ -1,0 +1,2323 @@
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"I2CS_I2C_INT.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.I2CS_I2C_ISR,"ax",%progbits
+  18              		.align	2
+  19              		.global	I2CS_I2C_ISR
+  20              		.code	16
+  21              		.thumb_func
+  22              		.type	I2CS_I2C_ISR, %function
+  23              	I2CS_I2C_ISR:
+  24              	.LFB0:
+  25              		.file 1 ".\\Generated_Source\\PSoC4\\I2CS_I2C_INT.c"
+   1:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** /*******************************************************************************
+   2:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * File Name: I2CS_I2C_INT.c
+   3:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Version 1.20
+   4:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+   5:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Description:
+   6:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *  This file provides the source code to the Interrupt Service Routine for
+   7:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *  the SCB Component in I2C mode.
+   8:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+   9:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Note:
+  10:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+  11:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** ********************************************************************************
+  12:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Copyright 2013-2014, Cypress Semiconductor Corporation.  All rights reserved.
+  13:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * You may use this file only in accordance with the license, terms, conditions,
+  14:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * disclaimers, and limitations in the end user license agreement accompanying
+  15:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * the software package with which this file was provided.
+  16:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *******************************************************************************/
+  17:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  18:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** #include "I2CS_PVT.h"
+  19:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** #include "I2CS_I2C_PVT.h"
+  20:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  21:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  22:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** /*******************************************************************************
+  23:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Function Name: I2CS_I2C_ISR
+  24:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** ********************************************************************************
+  25:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+  26:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Summary:
+  27:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *  Handles the Interrupt Service Routine for the SCB I2C mode.
+  28:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+  29:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Parameters:
+  30:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *  None
+  31:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+  32:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** * Return:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 2
+
+
+  33:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *  None
+  34:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *
+  35:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** *******************************************************************************/
+  36:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** CY_ISR(I2CS_I2C_ISR)
+  37:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** {
+  26              		.loc 1 37 0
+  27              		.cfi_startproc
+  28 0000 80B5     		push	{r7, lr}
+  29              	.LCFI0:
+  30              		.cfi_def_cfa_offset 8
+  31              		.cfi_offset 7, -8
+  32              		.cfi_offset 14, -4
+  33 0002 82B0     		sub	sp, sp, #8
+  34              	.LCFI1:
+  35              		.cfi_def_cfa_offset 16
+  36 0004 00AF     		add	r7, sp, #0
+  37              	.LCFI2:
+  38              		.cfi_def_cfa_register 7
+  38:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     uint32 diffCount;
+  39:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     uint32 endTransfer;
+  40:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  41:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     #if(I2CS_CHECK_I2C_ACCEPT_ADDRESS_CONST)
+  42:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         uint32 address;
+  43:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     #endif /* (I2CS_CHECK_I2C_ACCEPT_ADDRESS_CONST) */
+  44:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  45:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     endTransfer = 0u; /* Continue active transfer */
+  39              		.loc 1 45 0
+  40 0006 0023     		mov	r3, #0
+  41 0008 3B60     		str	r3, [r7]
+  46:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  47:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* Call customer routine if registered */
+  48:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     if(NULL != I2CS_customIntrHandler)
+  42              		.loc 1 48 0
+  43 000a D94B     		ldr	r3, .L37
+  44 000c 1B68     		ldr	r3, [r3]
+  45 000e 002B     		cmp	r3, #0
+  46 0010 02D0     		beq	.L2
+  49:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+  50:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_customIntrHandler();
+  47              		.loc 1 50 0
+  48 0012 D74B     		ldr	r3, .L37
+  49 0014 1B68     		ldr	r3, [r3]
+  50 0016 9847     		blx	r3
+  51              	.L2:
+  51:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+  52:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  53:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     if(I2CS_CHECK_INTR_I2C_EC_MASKED(I2CS_INTR_I2C_EC_WAKE_UP))
+  52              		.loc 1 53 0
+  53 0018 D64B     		ldr	r3, .L37+4
+  54 001a 1A68     		ldr	r2, [r3]
+  55 001c 0123     		mov	r3, #1
+  56 001e 1340     		and	r3, r2
+  57 0020 02D0     		beq	.L3
+  54:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+  55:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         /* Mask-off after wakeup */
+  56:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_SetI2CExtClkInterruptMode(I2CS_NO_INTR_SOURCES);
+  58              		.loc 1 56 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 3
+
+
+  59 0022 D54B     		ldr	r3, .L37+8
+  60 0024 0022     		mov	r2, #0
+  61 0026 1A60     		str	r2, [r3]
+  62              	.L3:
+  57:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+  58:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  59:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* Master and Slave error tracking:
+  60:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * Add the master state check to track only the master errors when the master is active or
+  61:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * track slave errors when the slave is active or idle.
+  62:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * A special MMS case: on the address phase with misplaced Start: the master sets the LOST_ARB a
+  63:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * slave BUS_ERR. The valid event is LOST_ARB comes from the master.
+  64:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     */
+  65:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     if(I2CS_CHECK_I2C_FSM_MASTER)
+  63              		.loc 1 65 0
+  64 0028 D44B     		ldr	r3, .L37+12
+  65 002a 1B78     		ldrb	r3, [r3]
+  66 002c DAB2     		uxtb	r2, r3
+  67 002e 2023     		mov	r3, #32
+  68 0030 1340     		and	r3, r2
+  69 0032 DBB2     		uxtb	r3, r3
+  70 0034 002B     		cmp	r3, #0
+  71 0036 31D1     		bne	.L4
+  66:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+  67:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #if(I2CS_I2C_MASTER)
+  68:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         {
+  69:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_MASTER_I2C_BUS_ERROR:
+  70:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * A misplaced Start or Stop condition occurred on the bus: complete the transaction.
+  71:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The interrupt is cleared in the I2C_FSM_EXIT_IDLE.
+  72:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+  73:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_BUS_ERROR))
+  74:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+  75:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_ERR_XFER |
+  76:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                          I2CS_I2C_MSTAT_ERR_BUS_ERROR);
+  77:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  78:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+  79:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+  80:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  81:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_MASTER_I2C_ARB_LOST:
+  82:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The MultiMaster lost arbitrage during the transaction.
+  83:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * A Misplaced Start or Stop condition is treated as lost arbitration when the master dr
+  84:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The interrupt source is cleared in the I2C_FSM_EXIT_IDLE.
+  85:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+  86:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_ARB_LOST))
+  87:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+  88:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_ERR_XFER |
+  89:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                          I2CS_I2C_MSTAT_ERR_ARB_LOST);
+  90:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  91:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+  92:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+  93:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+  94:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             #if(I2CS_I2C_MULTI_MASTER_SLAVE)
+  95:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+  96:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* I2C_MASTER_CMD_M_START_ON_IDLE:
+  97:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 * The MultiMaster-Slave does not generate a start, because the Slave was addressed.
+  98:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 * Pass control to the slave.
+  99:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 */
+ 100:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_I2C_MASTER_CMD(I2CS_I2C_MASTER_CMD_M_START_ON_IDLE))
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 4
+
+
+ 101:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 102:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_ERR_XFER |
+ 103:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                              I2CS_I2C_MSTAT_ERR_ABORT_XFER);
+ 104:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 105:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 106:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 107:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 108:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             #endif
+ 109:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 110:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* The error handling common part:
+ 111:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * Set a completion flag of the master transaction and pass control to:
+ 112:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             *  - I2C_FSM_EXIT_IDLE - to complete a transaction in case of: ARB_LOST or BUS_ERR.
+ 113:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             *  - I2C_FSM_IDLE      - to take a chance for the slave to process the incoming transac
+ 114:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 115:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(0u != endTransfer)
+ 116:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 117:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Set completion flags for master */
+ 118:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_mstrStatus |= (uint16) I2CS_GET_I2C_MSTAT_CMPLT;
+ 119:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 120:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #if(I2CS_I2C_MULTI_MASTER_SLAVE)
+ 121:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 122:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(I2CS_CHECK_I2C_FSM_ADDR)
+ 123:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 124:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* The Start generation was set after another master start accessing the Sl
+ 125:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * Clean-up the master and turn to the slave. Set the state to IDLE.
+ 126:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 127:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(I2CS_CHECK_I2C_MASTER_CMD(I2CS_I2C_MASTER_CMD_M_START_ON_IDLE))
+ 128:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 129:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_I2C_MASTER_CLEAR_START;
+ 130:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 131:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER; /* Pass control to Slave */
+ 132:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 133:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* The valid arbitration lost on the address phase happens only when: maste
+ 134:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * slave BUS_ERR is cleared. Only in that case set the state to IDLE without
+ 135:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 136:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else if((!I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_BUS_ERROR))
+ 137:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                && I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_ARB_LOST))
+ 138:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 139:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER; /* Pass control to Slave */
+ 140:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 141:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 142:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 143:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             endTransfer = 0u; /* Causes I2C_FSM_EXIT_IDLE to be set below */
+ 144:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 145:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 146:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(0u != endTransfer) /* Clean-up master to proceed with slave */
+ 147:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 148:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_CLEAR_TX_FIFO; /* Shifter keeps address, clear it */
+ 149:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 150:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_DISABLE_MASTER_AUTO_DATA_ACK; /* In case of reading disable autoAC
+ 151:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 152:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Clean-up master interrupt sources */
+ 153:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ClearMasterInterruptSource(I2CS_INTR_MASTER_ALL);
+ 154:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 155:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Disable data processing interrupts: they should be cleared before */
+ 156:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_SetRxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 157:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_SetTxInterruptMode(I2CS_NO_INTR_SOURCES);
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 5
+
+
+ 158:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 159:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_state = I2CS_I2C_FSM_IDLE;
+ 160:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 161:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 162:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 163:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Set I2C_FSM_EXIT_IDLE for BUS_ERR and ARB_LOST (that is really bus e
+ 164:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_state = I2CS_I2C_FSM_EXIT_IDLE;
+ 165:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 166:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 167:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else
+ 168:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 169:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Set I2C_FSM_EXIT_IDLE if any other state than address */
+ 170:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_state = I2CS_I2C_FSM_EXIT_IDLE;
+ 171:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 172:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 173:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #else
+ 174:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 175:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* In case of LOST*/
+ 176:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_state = I2CS_I2C_FSM_EXIT_IDLE;
+ 177:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 178:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #endif
+ 179:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 180:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         }
+ 181:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #endif
+ 182:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+ 183:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     else /* (I2CS_CHECK_I2C_FSM_SLAVE) */
+ 184:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+ 185:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #if(I2CS_I2C_SLAVE)
+ 186:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         {
+ 187:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_SLAVE_I2C_BUS_ERROR or I2CS_INTR_SLAVE_I2C_ARB_LOST:
+ 188:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * A Misplaced Start or Stop condition occurred on the bus: set a flag
+ 189:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * to notify an error condition.
+ 190:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 191:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_BUS_ERROR |
+  72              		.loc 1 191 0
+  73 0038 D14B     		ldr	r3, .L37+16
+  74 003a 1A68     		ldr	r2, [r3]
+  75 003c D14B     		ldr	r3, .L37+20
+  76 003e 1340     		and	r3, r2
+  77 0040 2CD0     		beq	.L4
+ 192:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                         I2CS_INTR_SLAVE_I2C_ARB_LOST))
+ 193:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 194:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_I2C_FSM_RD)
+  78              		.loc 1 194 0
+  79 0042 CE4B     		ldr	r3, .L37+12
+  80 0044 1B78     		ldrb	r3, [r3]
+  81 0046 DAB2     		uxtb	r2, r3
+  82 0048 0123     		mov	r3, #1
+  83 004a 1340     		and	r3, r2
+  84 004c DBB2     		uxtb	r3, r3
+  85 004e 002B     		cmp	r3, #0
+  86 0050 10D0     		beq	.L5
+ 195:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 196:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* TX direction: master reads from slave */
+ 197:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus &= (uint8) ~I2CS_I2C_SSTAT_RD_BUSY;
+  87              		.loc 1 197 0
+  88 0052 CD4B     		ldr	r3, .L37+24
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 6
+
+
+  89 0054 1B78     		ldrb	r3, [r3]
+  90 0056 DBB2     		uxtb	r3, r3
+  91 0058 0222     		mov	r2, #2
+  92 005a 9343     		bic	r3, r2
+  93 005c DAB2     		uxtb	r2, r3
+  94 005e CA4B     		ldr	r3, .L37+24
+  95 0060 1A70     		strb	r2, [r3]
+ 198:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) (I2CS_I2C_SSTAT_RD_ERR |
+  96              		.loc 1 198 0
+  97 0062 C94B     		ldr	r3, .L37+24
+  98 0064 1B78     		ldrb	r3, [r3]
+  99 0066 DBB2     		uxtb	r3, r3
+ 100 0068 0922     		mov	r2, #9
+ 101 006a 1343     		orr	r3, r2
+ 102 006c DAB2     		uxtb	r2, r3
+ 103 006e C64B     		ldr	r3, .L37+24
+ 104 0070 1A70     		strb	r2, [r3]
+ 105 0072 10E0     		b	.L6
+ 106              	.L5:
+ 199:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                           I2CS_I2C_SSTAT_RD_CMPLT);
+ 200:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 201:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 else
+ 202:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 203:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* RX direction: master writes into slave */
+ 204:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus &= (uint8) ~I2CS_I2C_SSTAT_WR_BUSY;
+ 107              		.loc 1 204 0
+ 108 0074 C44B     		ldr	r3, .L37+24
+ 109 0076 1B78     		ldrb	r3, [r3]
+ 110 0078 DBB2     		uxtb	r3, r3
+ 111 007a 2022     		mov	r2, #32
+ 112 007c 9343     		bic	r3, r2
+ 113 007e DAB2     		uxtb	r2, r3
+ 114 0080 C14B     		ldr	r3, .L37+24
+ 115 0082 1A70     		strb	r2, [r3]
+ 205:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) (I2CS_I2C_SSTAT_WR_ERR |
+ 116              		.loc 1 205 0
+ 117 0084 C04B     		ldr	r3, .L37+24
+ 118 0086 1B78     		ldrb	r3, [r3]
+ 119 0088 DBB2     		uxtb	r3, r3
+ 120 008a 7022     		mov	r2, #112
+ 121 008c 5242     		neg	r2, r2
+ 122 008e 1343     		orr	r3, r2
+ 123 0090 DAB2     		uxtb	r2, r3
+ 124 0092 BD4B     		ldr	r3, .L37+24
+ 125 0094 1A70     		strb	r2, [r3]
+ 126              	.L6:
+ 206:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                           I2CS_I2C_SSTAT_WR_CMPLT);
+ 207:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 208:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 209:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_state = I2CS_I2C_FSM_EXIT_IDLE;
+ 127              		.loc 1 209 0
+ 128 0096 B94B     		ldr	r3, .L37+12
+ 129 0098 0022     		mov	r2, #0
+ 130 009a 1A70     		strb	r2, [r3]
+ 131              	.L4:
+ 210:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 211:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         }
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 7
+
+
+ 212:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #endif
+ 213:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+ 214:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 215:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* States description:
+ 216:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * Any Master operation starts from: the ADDR_RD/WR state as the master generates traffic on the
+ 217:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * Any Slave operation starts from: the IDLE state as the slave always waits for actions from th
+ 218:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     */
+ 219:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 220:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* FSM Master */
+ 221:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     if(I2CS_CHECK_I2C_FSM_MASTER)
+ 132              		.loc 1 221 0
+ 133 009c B74B     		ldr	r3, .L37+12
+ 134 009e 1B78     		ldrb	r3, [r3]
+ 135 00a0 DAB2     		uxtb	r2, r3
+ 136 00a2 2023     		mov	r3, #32
+ 137 00a4 1340     		and	r3, r2
+ 138 00a6 DBB2     		uxtb	r3, r3
+ 139 00a8 002B     		cmp	r3, #0
+ 140 00aa 00D0     		beq	.LCB110
+ 141 00ac 0FE2     		b	.L1	@long jump
+ 142              	.LCB110:
+ 222:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+ 223:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #if(I2CS_I2C_MASTER)
+ 224:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         {
+ 225:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_MASTER_I2C_STOP:
+ 226:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * A Stop condition was generated by the master: the end of the transaction.
+ 227:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * Set completion flags to notify the API.
+ 228:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 229:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_STOP))
+ 230:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 231:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearMasterInterruptSource(I2CS_INTR_MASTER_I2C_STOP);
+ 232:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 233:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_mstrStatus |= (uint16) I2CS_GET_I2C_MSTAT_CMPLT;
+ 234:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_state       = I2CS_I2C_FSM_IDLE;
+ 235:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 236:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             else
+ 237:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 238:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_I2C_FSM_ADDR) /* Address stage */
+ 239:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 240:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* INTR_MASTER_I2C_NACK:
+ 241:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     * The master has sent an address but it was NACKed by the slave. Complete trans
+ 242:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     */
+ 243:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_NACK))
+ 244:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 245:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_ClearMasterInterruptSource(I2CS_INTR_MASTER_I2C_NACK);
+ 246:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 247:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_ERR_XFER |
+ 248:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                                  I2CS_I2C_MSTAT_ERR_ADDR_NAK);
+ 249:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 250:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 251:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 252:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* INTR_TX_UNDERFLOW. The master has sent an address:
+ 253:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     *  - TX direction: the clock is stretched after the ACK phase, because the TX F
+ 254:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     *    EMPTY. The TX EMPTY cleans all the TX interrupt sources.
+ 255:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     *  - RX direction: the 1st byte is received, but there is no ACK permission,
+ 256:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     *    the clock is stretched after 1 byte is received.
+ 257:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     */
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 8
+
+
+ 258:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else
+ 259:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 260:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(I2CS_CHECK_I2C_FSM_RD) /* Reading */
+ 261:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 262:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_state = I2CS_I2C_FSM_MSTR_RD_DATA;
+ 263:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 264:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else /* Writing */
+ 265:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 266:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_state = I2CS_I2C_FSM_MSTR_WR_DATA;
+ 267:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if(0u != I2CS_mstrWrBufSize)
+ 268:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 269:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 /* Enable INTR.TX_EMPTY if there is data to transmit */
+ 270:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_SetTxInterruptMode(I2CS_INTR_TX_EMPTY);
+ 271:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 272:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 273:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 274:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 275:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 276:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_I2C_FSM_DATA) /* Data phase */
+ 277:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 278:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(I2CS_CHECK_I2C_FSM_RD) /* Reading */
+ 279:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 280:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* INTR_RX_FULL:
+ 281:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * RX direction: the master has received 8 bytes.
+ 282:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * Get data from the RX FIFO and decide whether to ACK or  NACK the followin
+ 283:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 284:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(I2CS_CHECK_INTR_RX_MASKED(I2CS_INTR_RX_FULL))
+ 285:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 286:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Calculate difference */
+ 287:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             diffCount =  I2CS_mstrRdBufSize -
+ 288:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                         (I2CS_mstrRdBufIndex + I2CS_GET_RX_FIFO_ENTRIES);
+ 289:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 290:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Proceed transaction or end it when RX FIFO becomes FULL again */
+ 291:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if(diffCount > I2CS_FIFO_SIZE)
+ 292:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 293:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 diffCount = I2CS_FIFO_SIZE;
+ 294:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 295:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             else
+ 296:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 297:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 if(0u == diffCount)
+ 298:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 {
+ 299:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     I2CS_DISABLE_MASTER_AUTO_DATA_ACK;
+ 300:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 301:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     diffCount   = I2CS_FIFO_SIZE;
+ 302:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 303:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 }
+ 304:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 305:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 306:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             for(; (0u != diffCount); diffCount--)
+ 307:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 308:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_mstrRdBufPtr[I2CS_mstrRdBufIndex] = (uint8)
+ 309:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                                                         I2CS_RX_FIF
+ 310:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_mstrRdBufIndex++;
+ 311:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 312:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 313:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* INTR_RX_NOT_EMPTY:
+ 314:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * RX direction: the master has received one data byte, ACK or NACK it.
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 9
+
+
+ 315:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The last byte is stored and NACKed by the master. The NACK and Stop is
+ 316:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * generated by one command generate Stop.
+ 317:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 318:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else if(I2CS_CHECK_INTR_RX_MASKED(I2CS_INTR_RX_NOT_EMPTY))
+ 319:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 320:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Put data in component buffer */
+ 321:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrRdBufPtr[I2CS_mstrRdBufIndex] = (uint8) I2CS_RX_FIFO_RD_REG;
+ 322:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrRdBufIndex++;
+ 323:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 324:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if(I2CS_mstrRdBufIndex < I2CS_mstrRdBufSize)
+ 325:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 326:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_I2C_MASTER_GENERATE_ACK;
+ 327:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 328:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             else
+ 329:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 330:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 331:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 332:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 333:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 334:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 335:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Do nothing */
+ 336:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 337:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 338:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_ClearRxInterruptSource(I2CS_INTR_RX_ALL);
+ 339:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 340:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else /* Writing */
+ 341:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 342:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* INTR_MASTER_I2C_NACK :
+ 343:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The master writes data to the slave and NACK was received: not all the by
+ 344:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * written to the slave from the TX FIFO. Revert the index if there is data 
+ 345:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * the TX FIFO and pass control to a complete transfer.
+ 346:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 347:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(I2CS_CHECK_INTR_MASTER_MASKED(I2CS_INTR_MASTER_I2C_NACK))
+ 348:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 349:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ClearMasterInterruptSource(I2CS_INTR_MASTER_I2C_NACK);
+ 350:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 351:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Rollback write buffer index: NACKed byte remains in shifter */
+ 352:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrWrBufIndexTmp -= (I2CS_GET_TX_FIFO_ENTRIES +
+ 353:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                                    I2CS_GET_TX_FIFO_SR_VALID);
+ 354:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 355:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Update number of transferred bytes */
+ 356:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrWrBufIndex = I2CS_mstrWrBufIndexTmp;
+ 357:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 358:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_ERR_XFER |
+ 359:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                                      I2CS_I2C_MSTAT_ERR_SHORT_XFER)
+ 360:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 361:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_CLEAR_TX_FIFO;
+ 362:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 363:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 364:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 365:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* INTR_TX_EMPTY :
+ 366:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * TX direction: the TX FIFO is EMPTY, the data from the buffer needs to be 
+ 367:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * When there is no data in the component buffer, the underflow interrupt is
+ 368:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * enabled to catch when all the data has been transferred.
+ 369:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 370:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else if(I2CS_CHECK_INTR_TX_MASKED(I2CS_INTR_TX_EMPTY))
+ 371:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 10
+
+
+ 372:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             while(I2CS_FIFO_SIZE != I2CS_GET_TX_FIFO_ENTRIES)
+ 373:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 374:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 /* The temporary mstrWrBufIndexTmp is used because slave could NACK
+ 375:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 * roll-back required in this case. The mstrWrBufIndex is updated at
+ 376:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 */
+ 377:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 if(I2CS_mstrWrBufIndexTmp < I2CS_mstrWrBufSize)
+ 378:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 {
+ 379:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 #if(!I2CS_CY_SCBIP_V0)
+ 380:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                    /* Clear INTR_TX.UNDERFLOW before put last byte into the TX FIFO
+ 381:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     * proper trigger at the end of transaction when INTR_TX.UNDERFL
+ 382:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     * event. Ticket ID# 156735.
+ 383:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     */
+ 384:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     if(I2CS_mstrWrBufIndexTmp == (I2CS_mstrWrBufSize - 1u))
+ 385:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     {
+ 386:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                         I2CS_ClearTxInterruptSource(I2CS_INTR_TX_UNDERFLOW);
+ 387:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                         I2CS_SetTxInterruptMode(I2CS_INTR_TX_UNDERFLOW);
+ 388:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     }
+ 389:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                  #endif /* (!I2CS_CY_SCBIP_V0) */
+ 390:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 391:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     /* Put data into TX FIFO */
+ 392:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     I2CS_TX_FIFO_WR_REG = (uint32) I2CS_mstrWrBufPtr[I2CS_mstrWrBuf
+ 393:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     I2CS_mstrWrBufIndexTmp++;
+ 394:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 }
+ 395:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 else
+ 396:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 {
+ 397:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                     break; /* No more data to put */
+ 398:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 }
+ 399:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 400:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 401:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         #if(I2CS_CY_SCBIP_V0)
+ 402:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if(I2CS_mstrWrBufIndexTmp == I2CS_mstrWrBufSize)
+ 403:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 404:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_SetTxInterruptMode(I2CS_INTR_TX_UNDERFLOW);
+ 405:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 406:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 407:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ClearTxInterruptSource(I2CS_INTR_TX_ALL);
+ 408:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         #else
+ 409:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ClearTxInterruptSource(I2CS_INTR_TX_EMPTY);
+ 410:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         #endif /* (I2CS_CY_SCBIP_V0) */
+ 411:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 412:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* INTR_TX_UNDERFLOW:
+ 413:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * TX direction: all data from the TX FIFO was transferred to the slave.
+ 414:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The transaction needs to be completed.
+ 415:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 416:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else if(I2CS_CHECK_INTR_TX_MASKED(I2CS_INTR_TX_UNDERFLOW))
+ 417:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 418:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Update number of transferred bytes */
+ 419:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_mstrWrBufIndex = I2CS_mstrWrBufIndexTmp;
+ 420:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 421:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 422:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 423:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 424:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 425:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Do nothing */
+ 426:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 427:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 428:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 11
+
+
+ 429:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 430:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(0u != endTransfer) /* Complete transfer */
+ 431:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 432:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Clean-up master after reading: only in case of NACK */
+ 433:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_DISABLE_MASTER_AUTO_DATA_ACK;
+ 434:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 435:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Disable data processing interrupts: they should be cleared before */
+ 436:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_SetRxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 437:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_SetTxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 438:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 439:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(I2CS_CHECK_I2C_MODE_NO_STOP(I2CS_mstrControl))
+ 440:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 441:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* On-going transaction is suspended: the ReStart is generated by the API r
+ 442:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_mstrStatus |= (uint16) (I2CS_I2C_MSTAT_XFER_HALT |
+ 443:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                                                  I2CS_GET_I2C_MSTAT_CMPLT);
+ 444:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 445:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_state = I2CS_I2C_FSM_MSTR_HALT;
+ 446:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 447:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else
+ 448:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 449:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Complete transaction: exclude the data processing state and generate Sto
+ 450:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The completion status will be set after Stop generation.
+ 451:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * A special case is read: because NACK and Stop are generated by command be
+ 452:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The lost arbitration could occur during NACK generation in case when
+ 453:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * other master is still reading from the slave.
+ 454:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 455:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_I2C_MASTER_GENERATE_STOP;
+ 456:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 457:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 458:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 459:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 460:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         } /* (I2CS_I2C_MASTER) */
+ 461:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #endif
+ 462:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 463:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     } /* (I2CS_CHECK_I2C_FSM_MASTER) */
+ 464:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 465:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 466:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* FSM Slave */
+ 467:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     else if(I2CS_CHECK_I2C_FSM_SLAVE)
+ 143              		.loc 1 467 0
+ 144 00ae B34B     		ldr	r3, .L37+12
+ 145 00b0 1B78     		ldrb	r3, [r3]
+ 146 00b2 DAB2     		uxtb	r2, r3
+ 147 00b4 1023     		mov	r3, #16
+ 148 00b6 1340     		and	r3, r2
+ 149 00b8 DBB2     		uxtb	r3, r3
+ 150 00ba 002B     		cmp	r3, #0
+ 151 00bc 00D1     		bne	.LCB118
+ 152 00be D8E1     		b	.L8	@long jump
+ 153              	.LCB118:
+ 468:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+ 469:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #if(I2CS_I2C_SLAVE)
+ 470:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         {
+ 471:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_SLAVE_NACK:
+ 472:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The master completes reading the slave: the appropriate flags have to be set.
+ 473:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The TX FIFO is cleared after an overflow condition is set.
+ 474:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 12
+
+
+ 475:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_NACK))
+ 154              		.loc 1 475 0
+ 155 00c0 AF4B     		ldr	r3, .L37+16
+ 156 00c2 1A68     		ldr	r2, [r3]
+ 157 00c4 0223     		mov	r3, #2
+ 158 00c6 1340     		and	r3, r2
+ 159 00c8 56D0     		beq	.L9
+ 476:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 477:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearSlaveInterruptSource(I2CS_INTR_SLAVE_I2C_NACK);
+ 160              		.loc 1 477 0
+ 161 00ca B04B     		ldr	r3, .L37+28
+ 162 00cc 0222     		mov	r2, #2
+ 163 00ce 1A60     		str	r2, [r3]
+ 478:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 479:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* All entries that remain in TX FIFO max value is 9: 8 (FIFO) + 1 (SHIFTER) */
+ 480:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 diffCount = (I2CS_GET_TX_FIFO_ENTRIES + I2CS_GET_TX_FIFO_SR_VALID);
+ 164              		.loc 1 480 0
+ 165 00d0 AF4B     		ldr	r3, .L37+32
+ 166 00d2 1A68     		ldr	r2, [r3]
+ 167 00d4 0F23     		mov	r3, #15
+ 168 00d6 1A40     		and	r2, r3
+ 169 00d8 AD4B     		ldr	r3, .L37+32
+ 170 00da 1968     		ldr	r1, [r3]
+ 171 00dc 8023     		mov	r3, #128
+ 172 00de 1B02     		lsl	r3, r3, #8
+ 173 00e0 0B40     		and	r3, r1
+ 174 00e2 01D0     		beq	.L10
+ 175              		.loc 1 480 0 is_stmt 0 discriminator 1
+ 176 00e4 0123     		mov	r3, #1
+ 177 00e6 00E0     		b	.L11
+ 178              	.L10:
+ 179              		.loc 1 480 0 discriminator 2
+ 180 00e8 0023     		mov	r3, #0
+ 181              	.L11:
+ 182              		.loc 1 480 0 discriminator 3
+ 183 00ea D318     		add	r3, r2, r3
+ 184 00ec 7B60     		str	r3, [r7, #4]
+ 481:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 482:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_slOverFlowCount > diffCount) /* Overflow */
+ 185              		.loc 1 482 0 is_stmt 1 discriminator 3
+ 186 00ee A94B     		ldr	r3, .L37+36
+ 187 00f0 1B78     		ldrb	r3, [r3]
+ 188 00f2 DBB2     		uxtb	r3, r3
+ 189 00f4 1A1C     		mov	r2, r3
+ 190 00f6 7B68     		ldr	r3, [r7, #4]
+ 191 00f8 9A42     		cmp	r2, r3
+ 192 00fa 08D9     		bls	.L12
+ 483:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 484:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) I2CS_I2C_SSTAT_RD_OVFL;
+ 193              		.loc 1 484 0
+ 194 00fc A24B     		ldr	r3, .L37+24
+ 195 00fe 1B78     		ldrb	r3, [r3]
+ 196 0100 DBB2     		uxtb	r3, r3
+ 197 0102 0422     		mov	r2, #4
+ 198 0104 1343     		orr	r3, r2
+ 199 0106 DAB2     		uxtb	r2, r3
+ 200 0108 9F4B     		ldr	r3, .L37+24
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 13
+
+
+ 201 010a 1A70     		strb	r2, [r3]
+ 202 010c 0AE0     		b	.L13
+ 203              	.L12:
+ 485:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 486:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 else /* No Overflow */
+ 487:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 488:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Roll-back temporary index */
+ 489:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slRdBufIndexTmp -= (diffCount - I2CS_slOverFlowCount);
+ 204              		.loc 1 489 0
+ 205 010e A14B     		ldr	r3, .L37+36
+ 206 0110 1B78     		ldrb	r3, [r3]
+ 207 0112 DBB2     		uxtb	r3, r3
+ 208 0114 1A1C     		mov	r2, r3
+ 209 0116 7B68     		ldr	r3, [r7, #4]
+ 210 0118 D21A     		sub	r2, r2, r3
+ 211 011a 9F4B     		ldr	r3, .L37+40
+ 212 011c 1B68     		ldr	r3, [r3]
+ 213 011e D218     		add	r2, r2, r3
+ 214 0120 9D4B     		ldr	r3, .L37+40
+ 215 0122 1A60     		str	r2, [r3]
+ 216              	.L13:
+ 490:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 491:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 492:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Update slave of transferred bytes */
+ 493:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slRdBufIndex = I2CS_slRdBufIndexTmp;
+ 217              		.loc 1 493 0
+ 218 0124 9C4B     		ldr	r3, .L37+40
+ 219 0126 1A68     		ldr	r2, [r3]
+ 220 0128 9C4B     		ldr	r3, .L37+44
+ 221 012a 1A60     		str	r2, [r3]
+ 494:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 495:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Clean-up TX FIFO */
+ 496:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_SetTxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 222              		.loc 1 496 0
+ 223 012c 9C4B     		ldr	r3, .L37+48
+ 224 012e 0022     		mov	r2, #0
+ 225 0130 1A60     		str	r2, [r3]
+ 497:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slOverFlowCount = 0u;
+ 226              		.loc 1 497 0
+ 227 0132 984B     		ldr	r3, .L37+36
+ 228 0134 0022     		mov	r2, #0
+ 229 0136 1A70     		strb	r2, [r3]
+ 498:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_CLEAR_TX_FIFO;
+ 230              		.loc 1 498 0
+ 231 0138 9A4B     		ldr	r3, .L37+52
+ 232 013a 9A4A     		ldr	r2, .L37+52
+ 233 013c 1268     		ldr	r2, [r2]
+ 234 013e 8021     		mov	r1, #128
+ 235 0140 4902     		lsl	r1, r1, #9
+ 236 0142 0A43     		orr	r2, r1
+ 237 0144 1A60     		str	r2, [r3]
+ 238 0146 974B     		ldr	r3, .L37+52
+ 239 0148 964A     		ldr	r2, .L37+52
+ 240 014a 1168     		ldr	r1, [r2]
+ 241 014c 964A     		ldr	r2, .L37+56
+ 242 014e 0A40     		and	r2, r1
+ 243 0150 1A60     		str	r2, [r3]
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 14
+
+
+ 499:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 500:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Complete master reading */
+ 501:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slStatus &= (uint8) ~I2CS_I2C_SSTAT_RD_BUSY;
+ 244              		.loc 1 501 0
+ 245 0152 8D4B     		ldr	r3, .L37+24
+ 246 0154 1B78     		ldrb	r3, [r3]
+ 247 0156 DBB2     		uxtb	r3, r3
+ 248 0158 0222     		mov	r2, #2
+ 249 015a 9343     		bic	r3, r2
+ 250 015c DAB2     		uxtb	r2, r3
+ 251 015e 8A4B     		ldr	r3, .L37+24
+ 252 0160 1A70     		strb	r2, [r3]
+ 502:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slStatus |= (uint8)  I2CS_I2C_SSTAT_RD_CMPLT;
+ 253              		.loc 1 502 0
+ 254 0162 894B     		ldr	r3, .L37+24
+ 255 0164 1B78     		ldrb	r3, [r3]
+ 256 0166 DBB2     		uxtb	r3, r3
+ 257 0168 0122     		mov	r2, #1
+ 258 016a 1343     		orr	r3, r2
+ 259 016c DAB2     		uxtb	r2, r3
+ 260 016e 864B     		ldr	r3, .L37+24
+ 261 0170 1A70     		strb	r2, [r3]
+ 503:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_state     =  I2CS_I2C_FSM_IDLE;
+ 262              		.loc 1 503 0
+ 263 0172 824B     		ldr	r3, .L37+12
+ 264 0174 1022     		mov	r2, #16
+ 265 0176 1A70     		strb	r2, [r3]
+ 266              	.L9:
+ 504:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 505:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 506:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 507:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_SLAVE_I2C_WRITE_STOP:
+ 508:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The master completes writing to the slave: the appropriate flags have to be set.
+ 509:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The RX FIFO contains 1-8 bytes from the previous transaction which needs to be read.
+ 510:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * There is a possibility that the RX FIFO contains an address, it needs to leave it the
+ 511:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 512:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_WRITE_STOP))
+ 267              		.loc 1 512 0
+ 268 0178 814B     		ldr	r3, .L37+16
+ 269 017a 1A68     		ldr	r2, [r3]
+ 270 017c 0823     		mov	r3, #8
+ 271 017e 1340     		and	r3, r2
+ 272 0180 48D0     		beq	.L14
+ 513:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 514:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearSlaveInterruptSource(I2CS_INTR_SLAVE_I2C_WRITE_STOP);
+ 273              		.loc 1 514 0
+ 274 0182 824B     		ldr	r3, .L37+28
+ 275 0184 0822     		mov	r2, #8
+ 276 0186 1A60     		str	r2, [r3]
+ 515:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 516:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Read bytes from the RX FIFO when auto data ACK receive logic is enabled. Otherwi
+ 517:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 * were already read from the RX FIFO accept address byte which has to stay here to 
+ 518:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 * I2C_ADDR_MATCH.
+ 519:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 */
+ 520:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if (0u != (I2CS_I2C_CTRL_REG & I2CS_I2C_CTRL_S_READY_DATA_ACK))
+ 277              		.loc 1 520 0
+ 278 0188 884B     		ldr	r3, .L37+60
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 15
+
+
+ 279 018a 1A68     		ldr	r2, [r3]
+ 280 018c 8023     		mov	r3, #128
+ 281 018e 9B01     		lsl	r3, r3, #6
+ 282 0190 1340     		and	r3, r2
+ 283 0192 19D0     		beq	.L15
+ 521:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 522:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     while(0u != I2CS_GET_RX_FIFO_ENTRIES)
+ 284              		.loc 1 522 0
+ 285 0194 0DE0     		b	.L16
+ 286              	.L17:
+ 523:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 524:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         #if(I2CS_CHECK_I2C_ACCEPT_ADDRESS)
+ 525:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 526:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if((1u == I2CS_GET_RX_FIFO_ENTRIES) &&
+ 527:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                (I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_ADDR_MATCH)))
+ 528:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 529:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 break; /* Leave address in RX FIFO */
+ 530:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 531:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 532:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         #endif
+ 533:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 534:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Put data in component buffer */
+ 535:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_slWrBufPtr[I2CS_slWrBufIndex] = (uint8) I2CS_RX_FIFO_RD_REG;
+ 287              		.loc 1 535 0
+ 288 0196 864B     		ldr	r3, .L37+64
+ 289 0198 1A68     		ldr	r2, [r3]
+ 290 019a 864B     		ldr	r3, .L37+68
+ 291 019c 1B68     		ldr	r3, [r3]
+ 292 019e D218     		add	r2, r2, r3
+ 293 01a0 854B     		ldr	r3, .L37+72
+ 294 01a2 1B68     		ldr	r3, [r3]
+ 295 01a4 DBB2     		uxtb	r3, r3
+ 296 01a6 1370     		strb	r3, [r2]
+ 536:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_slWrBufIndex++;
+ 297              		.loc 1 536 0
+ 298 01a8 824B     		ldr	r3, .L37+68
+ 299 01aa 1B68     		ldr	r3, [r3]
+ 300 01ac 5A1C     		add	r2, r3, #1
+ 301 01ae 814B     		ldr	r3, .L37+68
+ 302 01b0 1A60     		str	r2, [r3]
+ 303              	.L16:
+ 522:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     while(0u != I2CS_GET_RX_FIFO_ENTRIES)
+ 304              		.loc 1 522 0 discriminator 1
+ 305 01b2 824B     		ldr	r3, .L37+76
+ 306 01b4 1A68     		ldr	r2, [r3]
+ 307 01b6 0F23     		mov	r3, #15
+ 308 01b8 1340     		and	r3, r2
+ 309 01ba ECD1     		bne	.L17
+ 537:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 538:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     
+ 539:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_DISABLE_SLAVE_AUTO_DATA;
+ 310              		.loc 1 539 0
+ 311 01bc 7B4B     		ldr	r3, .L37+60
+ 312 01be 7B4A     		ldr	r2, .L37+60
+ 313 01c0 1168     		ldr	r1, [r2]
+ 314 01c2 7F4A     		ldr	r2, .L37+80
+ 315 01c4 0A40     		and	r2, r1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 16
+
+
+ 316 01c6 1A60     		str	r2, [r3]
+ 317              	.L15:
+ 540:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 541:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 542:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_INTR_RX(I2CS_INTR_RX_OVERFLOW))
+ 318              		.loc 1 542 0
+ 319 01c8 7E4B     		ldr	r3, .L37+84
+ 320 01ca 1A68     		ldr	r2, [r3]
+ 321 01cc 2023     		mov	r3, #32
+ 322 01ce 1340     		and	r3, r2
+ 323 01d0 07D0     		beq	.L18
+ 543:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 544:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) I2CS_I2C_SSTAT_WR_OVFL;
+ 324              		.loc 1 544 0
+ 325 01d2 6D4B     		ldr	r3, .L37+24
+ 326 01d4 1B78     		ldrb	r3, [r3]
+ 327 01d6 DBB2     		uxtb	r3, r3
+ 328 01d8 4022     		mov	r2, #64
+ 329 01da 1343     		orr	r3, r2
+ 330 01dc DAB2     		uxtb	r2, r3
+ 331 01de 6A4B     		ldr	r3, .L37+24
+ 332 01e0 1A70     		strb	r2, [r3]
+ 333              	.L18:
+ 545:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 546:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 547:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Clears RX interrupt sources triggered on data receiving */
+ 548:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_SetRxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 334              		.loc 1 548 0
+ 335 01e2 794B     		ldr	r3, .L37+88
+ 336 01e4 0022     		mov	r2, #0
+ 337 01e6 1A60     		str	r2, [r3]
+ 549:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearRxInterruptSource(I2CS_INTR_RX_ALL);
+ 338              		.loc 1 549 0
+ 339 01e8 764B     		ldr	r3, .L37+84
+ 340 01ea 784A     		ldr	r2, .L37+92
+ 341 01ec 1A60     		str	r2, [r3]
+ 550:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 551:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Complete master writing */
+ 552:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slStatus &= (uint8) ~I2CS_I2C_SSTAT_WR_BUSY;
+ 342              		.loc 1 552 0
+ 343 01ee 664B     		ldr	r3, .L37+24
+ 344 01f0 1B78     		ldrb	r3, [r3]
+ 345 01f2 DBB2     		uxtb	r3, r3
+ 346 01f4 2022     		mov	r2, #32
+ 347 01f6 9343     		bic	r3, r2
+ 348 01f8 DAB2     		uxtb	r2, r3
+ 349 01fa 634B     		ldr	r3, .L37+24
+ 350 01fc 1A70     		strb	r2, [r3]
+ 553:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_slStatus |= (uint8)  I2CS_I2C_SSTAT_WR_CMPLT;
+ 351              		.loc 1 553 0
+ 352 01fe 624B     		ldr	r3, .L37+24
+ 353 0200 1B78     		ldrb	r3, [r3]
+ 354 0202 DBB2     		uxtb	r3, r3
+ 355 0204 1022     		mov	r2, #16
+ 356 0206 1343     		orr	r3, r2
+ 357 0208 DAB2     		uxtb	r2, r3
+ 358 020a 5F4B     		ldr	r3, .L37+24
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 17
+
+
+ 359 020c 1A70     		strb	r2, [r3]
+ 554:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_state     =  I2CS_I2C_FSM_IDLE;
+ 360              		.loc 1 554 0
+ 361 020e 5B4B     		ldr	r3, .L37+12
+ 362 0210 1022     		mov	r2, #16
+ 363 0212 1A70     		strb	r2, [r3]
+ 364              	.L14:
+ 555:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 556:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 557:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 558:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* INTR_SLAVE_I2C_ADDR_MATCH:
+ 559:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The address match event starts the slave operation: after leaving the TX or RX
+ 560:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * direction has to be chosen.
+ 561:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The wakeup interrupt must be cleared only after an address match is set.
+ 562:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 563:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_SLAVE_MASKED(I2CS_INTR_SLAVE_I2C_ADDR_MATCH))
+ 365              		.loc 1 563 0
+ 366 0214 5A4B     		ldr	r3, .L37+16
+ 367 0216 1A68     		ldr	r2, [r3]
+ 368 0218 4023     		mov	r3, #64
+ 369 021a 1340     		and	r3, r2
+ 370 021c 4DD0     		beq	.L19
+ 564:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 565:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #if(I2CS_CHECK_I2C_ACCEPT_ADDRESS)
+ 566:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 567:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     address = I2CS_RX_FIFO_RD_REG; /* Address in the RX FIFO */
+ 568:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 569:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Clears RX sources if address was received in RX FIFO */
+ 570:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_ClearRxInterruptSource(I2CS_INTR_RX_ALL);
+ 571:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 572:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(0u != address)
+ 573:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 574:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Suppress compiler warning */
+ 575:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 576:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 577:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #endif
+ 578:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 579:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_CHECK_I2C_STATUS(I2CS_I2C_STATUS_S_READ))
+ 371              		.loc 1 579 0
+ 372 021e 6C4B     		ldr	r3, .L37+96
+ 373 0220 1A68     		ldr	r2, [r3]
+ 374 0222 1023     		mov	r3, #16
+ 375 0224 1340     		and	r3, r2
+ 376 0226 12D0     		beq	.L20
+ 580:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* TX direction: master reads from slave */
+ 581:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 582:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_SetTxInterruptMode(I2CS_INTR_TX_EMPTY);
+ 377              		.loc 1 582 0
+ 378 0228 5D4B     		ldr	r3, .L37+48
+ 379 022a 1022     		mov	r2, #16
+ 380 022c 1A60     		str	r2, [r3]
+ 583:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 584:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Set temporary index to address buffer clear from API */
+ 585:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slRdBufIndexTmp = I2CS_slRdBufIndex;
+ 381              		.loc 1 585 0
+ 382 022e 5B4B     		ldr	r3, .L37+44
+ 383 0230 1A68     		ldr	r2, [r3]
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 18
+
+
+ 384 0232 594B     		ldr	r3, .L37+40
+ 385 0234 1A60     		str	r2, [r3]
+ 586:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 587:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Start master reading */
+ 588:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) I2CS_I2C_SSTAT_RD_BUSY;
+ 386              		.loc 1 588 0
+ 387 0236 544B     		ldr	r3, .L37+24
+ 388 0238 1B78     		ldrb	r3, [r3]
+ 389 023a DBB2     		uxtb	r3, r3
+ 390 023c 0222     		mov	r2, #2
+ 391 023e 1343     		orr	r3, r2
+ 392 0240 DAB2     		uxtb	r2, r3
+ 393 0242 514B     		ldr	r3, .L37+24
+ 394 0244 1A70     		strb	r2, [r3]
+ 589:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_state     = I2CS_I2C_FSM_SL_RD;
+ 395              		.loc 1 589 0
+ 396 0246 4D4B     		ldr	r3, .L37+12
+ 397 0248 1122     		mov	r2, #17
+ 398 024a 1A70     		strb	r2, [r3]
+ 399 024c 2CE0     		b	.L21
+ 400              	.L20:
+ 590:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 591:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 else
+ 592:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* RX direction: master writes into slave */
+ 593:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 594:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Calculate available buffer size */
+ 595:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     diffCount = (I2CS_slWrBufSize - I2CS_slWrBufIndex);
+ 401              		.loc 1 595 0
+ 402 024e 614B     		ldr	r3, .L37+100
+ 403 0250 1A68     		ldr	r2, [r3]
+ 404 0252 584B     		ldr	r3, .L37+68
+ 405 0254 1B68     		ldr	r3, [r3]
+ 406 0256 D31A     		sub	r3, r2, r3
+ 407 0258 7B60     		str	r3, [r7, #4]
+ 596:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 597:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #if (I2CS_CY_SCBIP_V0)
+ 598:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     
+ 599:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(diffCount < I2CS_FIFO_SIZE)
+ 408              		.loc 1 599 0
+ 409 025a 7B68     		ldr	r3, [r7, #4]
+ 410 025c 072B     		cmp	r3, #7
+ 411 025e 03D8     		bhi	.L22
+ 600:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Receive data: byte-by-byte */
+ 601:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 602:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_SetRxInterruptMode(I2CS_INTR_RX_NOT_EMPTY);
+ 412              		.loc 1 602 0
+ 413 0260 594B     		ldr	r3, .L37+88
+ 414 0262 0422     		mov	r2, #4
+ 415 0264 1A60     		str	r2, [r3]
+ 416 0266 14E0     		b	.L23
+ 417              	.L22:
+ 603:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 604:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else
+ 605:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Receive data: into RX FIFO */
+ 606:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 607:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(diffCount == I2CS_FIFO_SIZE)
+ 418              		.loc 1 607 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 19
+
+
+ 419 0268 7B68     		ldr	r3, [r7, #4]
+ 420 026a 082B     		cmp	r3, #8
+ 421 026c 07D1     		bne	.L24
+ 608:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 609:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* NACK when RX FIFO become FULL */
+ 610:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ENABLE_SLAVE_AUTO_DATA;
+ 422              		.loc 1 610 0
+ 423 026e 4F4B     		ldr	r3, .L37+60
+ 424 0270 4E4A     		ldr	r2, .L37+60
+ 425 0272 1268     		ldr	r2, [r2]
+ 426 0274 A021     		mov	r1, #160
+ 427 0276 0902     		lsl	r1, r1, #8
+ 428 0278 0A43     		orr	r2, r1
+ 429 027a 1A60     		str	r2, [r3]
+ 430 027c 09E0     		b	.L23
+ 431              	.L24:
+ 611:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 612:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 613:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 614:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Stretch clock when RX FIFO becomes FULL */
+ 615:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_ENABLE_SLAVE_AUTO_DATA_ACK;
+ 432              		.loc 1 615 0
+ 433 027e 4B4B     		ldr	r3, .L37+60
+ 434 0280 4A4A     		ldr	r2, .L37+60
+ 435 0282 1268     		ldr	r2, [r2]
+ 436 0284 8021     		mov	r1, #128
+ 437 0286 8901     		lsl	r1, r1, #6
+ 438 0288 0A43     		orr	r2, r1
+ 439 028a 1A60     		str	r2, [r3]
+ 616:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_SetRxInterruptMode(I2CS_INTR_RX_FULL);
+ 440              		.loc 1 616 0
+ 441 028c 4E4B     		ldr	r3, .L37+88
+ 442 028e 0822     		mov	r2, #8
+ 443 0290 1A60     		str	r2, [r3]
+ 444              	.L23:
+ 617:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 618:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 619:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     
+ 620:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #else
+ 621:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     
+ 622:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     #if(I2CS_CHECK_I2C_ACCEPT_ADDRESS)
+ 623:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 624:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Enable RX.NOT_EMPTY interrupt source to receive byte by byte.
+ 625:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * The byte by byte receive is always chosen for when address is accpected i
+ 626:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         * Ticket ID#175559.
+ 627:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         */
+ 628:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_SetRxInterruptMode(I2CS_INTR_RX_NOT_EMPTY);
+ 629:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 630:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     #else
+ 631:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 632:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(diffCount < I2CS_FIFO_SIZE)
+ 633:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Receive data: byte-by-byte */
+ 634:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 635:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_SetRxInterruptMode(I2CS_INTR_RX_NOT_EMPTY);
+ 636:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 637:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         else
+ 638:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         /* Receive data: into RX FIFO */
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 20
+
+
+ 639:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 640:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             if(diffCount == I2CS_FIFO_SIZE)
+ 641:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 642:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 /* NACK when RX FIFO become FULL */
+ 643:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_ENABLE_SLAVE_AUTO_DATA;
+ 644:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 645:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             else
+ 646:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             {
+ 647:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 /* Stretch clock when RX FIFO becomes FULL */
+ 648:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_ENABLE_SLAVE_AUTO_DATA_ACK;
+ 649:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                                 I2CS_SetRxInterruptMode(I2CS_INTR_RX_FULL);
+ 650:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             }
+ 651:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 652:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 653:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     #endif
+ 654:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     
+ 655:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 #endif /* (I2CS_CY_SCBIP_V0) */
+ 656:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 657:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Start master reading */
+ 658:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) I2CS_I2C_SSTAT_WR_BUSY;
+ 445              		.loc 1 658 0
+ 446 0292 3D4B     		ldr	r3, .L37+24
+ 447 0294 1B78     		ldrb	r3, [r3]
+ 448 0296 DBB2     		uxtb	r3, r3
+ 449 0298 2022     		mov	r2, #32
+ 450 029a 1343     		orr	r3, r2
+ 451 029c DAB2     		uxtb	r2, r3
+ 452 029e 3A4B     		ldr	r3, .L37+24
+ 453 02a0 1A70     		strb	r2, [r3]
+ 659:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_state     = I2CS_I2C_FSM_SL_WR;
+ 454              		.loc 1 659 0
+ 455 02a2 364B     		ldr	r3, .L37+12
+ 456 02a4 1222     		mov	r2, #18
+ 457 02a6 1A70     		strb	r2, [r3]
+ 458              	.L21:
+ 660:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 661:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 662:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Clear interrupts before ACK address */
+ 663:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearI2CExtClkInterruptSource(I2CS_INTR_I2C_EC_WAKE_UP);
+ 459              		.loc 1 663 0
+ 460 02a8 4B4B     		ldr	r3, .L37+104
+ 461 02aa 0122     		mov	r2, #1
+ 462 02ac 1A60     		str	r2, [r3]
+ 664:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearSlaveInterruptSource(I2CS_INTR_SLAVE_ALL);
+ 463              		.loc 1 664 0
+ 464 02ae 374B     		ldr	r3, .L37+28
+ 465 02b0 4A4A     		ldr	r2, .L37+108
+ 466 02b2 1A60     		str	r2, [r3]
+ 665:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 666:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* The preparation complete: ACK the address */
+ 667:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_I2C_SLAVE_GENERATE_ACK;
+ 467              		.loc 1 667 0
+ 468 02b4 4A4B     		ldr	r3, .L37+112
+ 469 02b6 0122     		mov	r2, #1
+ 470 02b8 1A60     		str	r2, [r3]
+ 471              	.L19:
+ 668:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 21
+
+
+ 669:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 670:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* I2CS_INTR_RX_FULL":
+ 671:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * Get data from the RX FIFO and decide whether to ACK or NACK the following bytes
+ 672:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 673:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_RX_MASKED(I2CS_INTR_RX_FULL))
+ 472              		.loc 1 673 0
+ 473 02ba 4A4B     		ldr	r3, .L37+116
+ 474 02bc 1A68     		ldr	r2, [r3]
+ 475 02be 0823     		mov	r3, #8
+ 476 02c0 1340     		and	r3, r2
+ 477 02c2 36D0     		beq	.L25
+ 674:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 675:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Calculate available buffer size to take into account that RX FIFO is FULL */
+ 676:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 diffCount =  I2CS_slWrBufSize -
+ 478              		.loc 1 676 0
+ 479 02c4 434B     		ldr	r3, .L37+100
+ 480 02c6 1A68     		ldr	r2, [r3]
+ 481 02c8 3A4B     		ldr	r3, .L37+68
+ 482 02ca 1B68     		ldr	r3, [r3]
+ 483 02cc D31A     		sub	r3, r2, r3
+ 484 02ce 083B     		sub	r3, r3, #8
+ 485 02d0 7B60     		str	r3, [r7, #4]
+ 677:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             (I2CS_slWrBufIndex + I2CS_FIFO_SIZE);
+ 678:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 679:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(diffCount > I2CS_FIFO_SIZE) /* Proceed transaction */
+ 486              		.loc 1 679 0
+ 487 02d2 7B68     		ldr	r3, [r7, #4]
+ 488 02d4 082B     		cmp	r3, #8
+ 489 02d6 04D9     		bls	.L26
+ 680:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 681:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     diffCount   = I2CS_FIFO_SIZE;
+ 490              		.loc 1 681 0
+ 491 02d8 0823     		mov	r3, #8
+ 492 02da 7B60     		str	r3, [r7, #4]
+ 682:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     endTransfer = 0u;  /* Continue active transfer */
+ 493              		.loc 1 682 0
+ 494 02dc 0023     		mov	r3, #0
+ 495 02de 3B60     		str	r3, [r7]
+ 683:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 684:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 else /* End when FIFO becomes FULL again */
+ 685:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 686:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 687:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 688:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 689:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 for(; (0u != diffCount); diffCount--)
+ 496              		.loc 1 689 0
+ 497 02e0 13E0     		b	.L28
+ 498              	.L26:
+ 686:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     endTransfer = I2CS_I2C_CMPLT_ANY_TRANSFER;
+ 499              		.loc 1 686 0
+ 500 02e2 0123     		mov	r3, #1
+ 501 02e4 3B60     		str	r3, [r7]
+ 502              		.loc 1 689 0
+ 503 02e6 10E0     		b	.L28
+ 504              	.L29:
+ 690:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 691:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Put data in component buffer */
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 22
+
+
+ 692:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slWrBufPtr[I2CS_slWrBufIndex] = (uint8) I2CS_RX_FIFO_RD_REG;
+ 505              		.loc 1 692 0 discriminator 2
+ 506 02e8 314B     		ldr	r3, .L37+64
+ 507 02ea 1A68     		ldr	r2, [r3]
+ 508 02ec 314B     		ldr	r3, .L37+68
+ 509 02ee 1B68     		ldr	r3, [r3]
+ 510 02f0 D218     		add	r2, r2, r3
+ 511 02f2 314B     		ldr	r3, .L37+72
+ 512 02f4 1B68     		ldr	r3, [r3]
+ 513 02f6 DBB2     		uxtb	r3, r3
+ 514 02f8 1370     		strb	r3, [r2]
+ 693:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slWrBufIndex++;
+ 515              		.loc 1 693 0 discriminator 2
+ 516 02fa 2E4B     		ldr	r3, .L37+68
+ 517 02fc 1B68     		ldr	r3, [r3]
+ 518 02fe 5A1C     		add	r2, r3, #1
+ 519 0300 2C4B     		ldr	r3, .L37+68
+ 520 0302 1A60     		str	r2, [r3]
+ 689:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 for(; (0u != diffCount); diffCount--)
+ 521              		.loc 1 689 0 discriminator 2
+ 522 0304 7B68     		ldr	r3, [r7, #4]
+ 523 0306 013B     		sub	r3, r3, #1
+ 524 0308 7B60     		str	r3, [r7, #4]
+ 525              	.L28:
+ 689:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 for(; (0u != diffCount); diffCount--)
+ 526              		.loc 1 689 0 is_stmt 0 discriminator 1
+ 527 030a 7B68     		ldr	r3, [r7, #4]
+ 528 030c 002B     		cmp	r3, #0
+ 529 030e EBD1     		bne	.L29
+ 694:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 695:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 696:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(0u != endTransfer) /* End transfer sending NACK */
+ 530              		.loc 1 696 0 is_stmt 1
+ 531 0310 3B68     		ldr	r3, [r7]
+ 532 0312 002B     		cmp	r3, #0
+ 533 0314 09D0     		beq	.L30
+ 697:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 698:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_ENABLE_SLAVE_AUTO_DATA_NACK;
+ 534              		.loc 1 698 0
+ 535 0316 254B     		ldr	r3, .L37+60
+ 536 0318 244A     		ldr	r2, .L37+60
+ 537 031a 1268     		ldr	r2, [r2]
+ 538 031c 8021     		mov	r1, #128
+ 539 031e 0902     		lsl	r1, r1, #8
+ 540 0320 0A43     		orr	r2, r1
+ 541 0322 1A60     		str	r2, [r3]
+ 699:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 700:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* The INTR_RX_FULL triggers earlier than INTR_SLAVE_I2C_STOP:
+ 701:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     * disable all the RX interrupt sources.
+ 702:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     */
+ 703:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_SetRxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 542              		.loc 1 703 0
+ 543 0324 284B     		ldr	r3, .L37+88
+ 544 0326 0022     		mov	r2, #0
+ 545 0328 1A60     		str	r2, [r3]
+ 546              	.L30:
+ 704:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 23
+
+
+ 705:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 706:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearRxInterruptSource(I2CS_INTR_RX_FULL);
+ 547              		.loc 1 706 0
+ 548 032a 264B     		ldr	r3, .L37+84
+ 549 032c 0822     		mov	r2, #8
+ 550 032e 1A60     		str	r2, [r3]
+ 551 0330 68E0     		b	.L31
+ 552              	.L25:
+ 707:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 708:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* I2CS_INTR_RX_NOT_EMPTY:
+ 709:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The buffer size is less than 8: it requires processing in byte-by-byte mode.
+ 710:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 711:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             else if(I2CS_CHECK_INTR_RX_MASKED(I2CS_INTR_RX_NOT_EMPTY))
+ 553              		.loc 1 711 0
+ 554 0332 2C4B     		ldr	r3, .L37+116
+ 555 0334 1A68     		ldr	r2, [r3]
+ 556 0336 0423     		mov	r3, #4
+ 557 0338 1340     		and	r3, r2
+ 558 033a 63D0     		beq	.L31
+ 712:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 713:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 diffCount = I2CS_RX_FIFO_RD_REG;
+ 559              		.loc 1 713 0
+ 560 033c 1E4B     		ldr	r3, .L37+72
+ 561 033e 1B68     		ldr	r3, [r3]
+ 562 0340 7B60     		str	r3, [r7, #4]
+ 714:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 715:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 if(I2CS_slWrBufIndex < I2CS_slWrBufSize)
+ 563              		.loc 1 715 0
+ 564 0342 1C4B     		ldr	r3, .L37+68
+ 565 0344 1A68     		ldr	r2, [r3]
+ 566 0346 234B     		ldr	r3, .L37+100
+ 567 0348 1B68     		ldr	r3, [r3]
+ 568 034a 9A42     		cmp	r2, r3
+ 569 034c 4CD2     		bcs	.L32
+ 716:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 717:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_I2C_SLAVE_GENERATE_ACK;
+ 570              		.loc 1 717 0
+ 571 034e 244B     		ldr	r3, .L37+112
+ 572 0350 0122     		mov	r2, #1
+ 573 0352 1A60     		str	r2, [r3]
+ 718:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 719:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Put data into component buffer */
+ 720:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slWrBufPtr[I2CS_slWrBufIndex] = (uint8) diffCount;
+ 574              		.loc 1 720 0
+ 575 0354 164B     		ldr	r3, .L37+64
+ 576 0356 1A68     		ldr	r2, [r3]
+ 577 0358 164B     		ldr	r3, .L37+68
+ 578 035a 1B68     		ldr	r3, [r3]
+ 579 035c D318     		add	r3, r2, r3
+ 580 035e 7A68     		ldr	r2, [r7, #4]
+ 581 0360 D2B2     		uxtb	r2, r2
+ 582 0362 1A70     		strb	r2, [r3]
+ 721:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slWrBufIndex++;
+ 583              		.loc 1 721 0
+ 584 0364 134B     		ldr	r3, .L37+68
+ 585 0366 1B68     		ldr	r3, [r3]
+ 586 0368 5A1C     		add	r2, r3, #1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 24
+
+
+ 587 036a 124B     		ldr	r3, .L37+68
+ 588 036c 1A60     		str	r2, [r3]
+ 589 036e 46E0     		b	.L33
+ 590              	.L38:
+ 591              		.align	2
+ 592              	.L37:
+ 593 0370 00000000 		.word	I2CS_customIntrHandler
+ 594 0374 8C0E0640 		.word	1074138764
+ 595 0378 880E0640 		.word	1074138760
+ 596 037c 00000000 		.word	I2CS_state
+ 597 0380 4C0F0640 		.word	1074138956
+ 598 0384 01010000 		.word	257
+ 599 0388 00000000 		.word	I2CS_slStatus
+ 600 038c 400F0640 		.word	1074138944
+ 601 0390 08020640 		.word	1074135560
+ 602 0394 00000000 		.word	I2CS_slOverFlowCount
+ 603 0398 00000000 		.word	I2CS_slRdBufIndexTmp
+ 604 039c 00000000 		.word	I2CS_slRdBufIndex
+ 605 03a0 880F0640 		.word	1074139016
+ 606 03a4 04020640 		.word	1074135556
+ 607 03a8 FFFFFEFF 		.word	-65537
+ 608 03ac 60000640 		.word	1074135136
+ 609 03b0 00000000 		.word	I2CS_slWrBufPtr
+ 610 03b4 00000000 		.word	I2CS_slWrBufIndex
+ 611 03b8 40030640 		.word	1074135872
+ 612 03bc 08030640 		.word	1074135816
+ 613 03c0 FF5FFFFF 		.word	-40961
+ 614 03c4 C00F0640 		.word	1074139072
+ 615 03c8 C80F0640 		.word	1074139080
+ 616 03cc ED0F0000 		.word	4077
+ 617 03d0 64000640 		.word	1074135140
+ 618 03d4 00000000 		.word	I2CS_slWrBufSize
+ 619 03d8 800E0640 		.word	1074138752
+ 620 03dc FF0F0000 		.word	4095
+ 621 03e0 6C000640 		.word	1074135148
+ 622 03e4 CC0F0640 		.word	1074139084
+ 623              	.L32:
+ 722:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 723:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 else /* Overflow: there is no space in write buffer */
+ 724:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 725:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_I2C_SLAVE_GENERATE_NACK;
+ 624              		.loc 1 725 0
+ 625 03e8 3A4B     		ldr	r3, .L39
+ 626 03ea 0222     		mov	r2, #2
+ 627 03ec 1A60     		str	r2, [r3]
+ 726:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 727:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     I2CS_slStatus |= (uint8) I2CS_I2C_SSTAT_WR_OVFL;
+ 628              		.loc 1 727 0
+ 629 03ee 3A4B     		ldr	r3, .L39+4
+ 630 03f0 1B78     		ldrb	r3, [r3]
+ 631 03f2 DBB2     		uxtb	r3, r3
+ 632 03f4 4022     		mov	r2, #64
+ 633 03f6 1343     		orr	r3, r2
+ 634 03f8 DAB2     		uxtb	r2, r3
+ 635 03fa 374B     		ldr	r3, .L39+4
+ 636 03fc 1A70     		strb	r2, [r3]
+ 637              	.L33:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 25
+
+
+ 728:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 729:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 730:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearRxInterruptSource(I2CS_INTR_RX_NOT_EMPTY);
+ 638              		.loc 1 730 0
+ 639 03fe 374B     		ldr	r3, .L39+8
+ 640 0400 0422     		mov	r2, #4
+ 641 0402 1A60     		str	r2, [r3]
+ 642              	.L31:
+ 731:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 732:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             else
+ 733:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 734:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 /* Does nothing */
+ 735:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 736:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 737:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 738:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             /* I2CS_INTR_TX_EMPTY:
+ 739:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The master reads the slave: provide data to read or 0xFF in case of the end of the bu
+ 740:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * The overflow condition must be captured, but not set until the end of a transaction.
+ 741:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             * There is a possibility of a false overflow due of the TX FIFO utilization.
+ 742:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             */
+ 743:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             if(I2CS_CHECK_INTR_TX_MASKED(I2CS_INTR_TX_EMPTY))
+ 643              		.loc 1 743 0
+ 644 0404 364B     		ldr	r3, .L39+12
+ 645 0406 1A68     		ldr	r2, [r3]
+ 646 0408 1023     		mov	r3, #16
+ 647 040a 1340     		and	r3, r2
+ 648 040c 5FD0     		beq	.L1
+ 744:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             {
+ 745:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 while(I2CS_FIFO_SIZE != I2CS_GET_TX_FIFO_ENTRIES)
+ 649              		.loc 1 745 0
+ 650 040e 26E0     		b	.L34
+ 651              	.L36:
+ 746:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 {
+ 747:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* The temporary slRdBufIndexTmp is used because the master could NACK the byte
+ 748:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     * index roll-back is required in this case. The slRdBufIndex is updated at the 
+ 749:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     * of the read transfer.
+ 750:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     */
+ 751:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     if(I2CS_slRdBufIndexTmp < I2CS_slRdBufSize)
+ 652              		.loc 1 751 0
+ 653 0410 344B     		ldr	r3, .L39+16
+ 654 0412 1A68     		ldr	r2, [r3]
+ 655 0414 344B     		ldr	r3, .L39+20
+ 656 0416 1B68     		ldr	r3, [r3]
+ 657 0418 9A42     		cmp	r2, r3
+ 658 041a 0ED2     		bcs	.L35
+ 752:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Data from buffer */
+ 753:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 754:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_TX_FIFO_WR_REG = (uint32) I2CS_slRdBufPtr[I2CS_slRdBufIndexTmp];
+ 659              		.loc 1 754 0
+ 660 041c 334B     		ldr	r3, .L39+24
+ 661 041e 344A     		ldr	r2, .L39+28
+ 662 0420 1168     		ldr	r1, [r2]
+ 663 0422 304A     		ldr	r2, .L39+16
+ 664 0424 1268     		ldr	r2, [r2]
+ 665 0426 8A18     		add	r2, r1, r2
+ 666 0428 1278     		ldrb	r2, [r2]
+ 667 042a D2B2     		uxtb	r2, r2
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 26
+
+
+ 668 042c 1A60     		str	r2, [r3]
+ 755:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_slRdBufIndexTmp++;
+ 669              		.loc 1 755 0
+ 670 042e 2D4B     		ldr	r3, .L39+16
+ 671 0430 1B68     		ldr	r3, [r3]
+ 672 0432 5A1C     		add	r2, r3, #1
+ 673 0434 2B4B     		ldr	r3, .L39+16
+ 674 0436 1A60     		str	r2, [r3]
+ 675 0438 11E0     		b	.L34
+ 676              	.L35:
+ 756:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 757:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     else
+ 758:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     /* Probably Overflow */
+ 759:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     {
+ 760:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         I2CS_TX_FIFO_WR_REG = I2CS_I2C_SLAVE_OVFL_RETURN;
+ 677              		.loc 1 760 0
+ 678 043a 2C4B     		ldr	r3, .L39+24
+ 679 043c FF22     		mov	r2, #255
+ 680 043e 1A60     		str	r2, [r3]
+ 761:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 762:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         if(0u == (I2CS_INTR_TX_OVERFLOW & I2CS_slOverFlowCount))
+ 681              		.loc 1 762 0
+ 682 0440 2C4B     		ldr	r3, .L39+32
+ 683 0442 1B78     		ldrb	r3, [r3]
+ 684 0444 DAB2     		uxtb	r2, r3
+ 685 0446 2023     		mov	r3, #32
+ 686 0448 1340     		and	r3, r2
+ 687 044a DBB2     		uxtb	r3, r3
+ 688 044c 002B     		cmp	r3, #0
+ 689 044e 06D1     		bne	.L34
+ 763:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         {
+ 764:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             /* Get counter in range of the byte: value 10 is overflow */
+ 765:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                             I2CS_slOverFlowCount++;
+ 690              		.loc 1 765 0
+ 691 0450 284B     		ldr	r3, .L39+32
+ 692 0452 1B78     		ldrb	r3, [r3]
+ 693 0454 DBB2     		uxtb	r3, r3
+ 694 0456 0133     		add	r3, r3, #1
+ 695 0458 DAB2     		uxtb	r2, r3
+ 696 045a 264B     		ldr	r3, .L39+32
+ 697 045c 1A70     		strb	r2, [r3]
+ 698              	.L34:
+ 745:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 while(I2CS_FIFO_SIZE != I2CS_GET_TX_FIFO_ENTRIES)
+ 699              		.loc 1 745 0 discriminator 1
+ 700 045e 264B     		ldr	r3, .L39+36
+ 701 0460 1A68     		ldr	r2, [r3]
+ 702 0462 0F23     		mov	r3, #15
+ 703 0464 1340     		and	r3, r2
+ 704 0466 082B     		cmp	r3, #8
+ 705 0468 D2D1     		bne	.L36
+ 766:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                         }
+ 767:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                     }
+ 768:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 }
+ 769:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 770:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****                 I2CS_ClearTxInterruptSource(I2CS_INTR_TX_EMPTY);
+ 706              		.loc 1 770 0
+ 707 046a 244B     		ldr	r3, .L39+40
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 27
+
+
+ 708 046c 1022     		mov	r2, #16
+ 709 046e 1A60     		str	r2, [r3]
+ 710 0470 2DE0     		b	.L1
+ 711              	.L8:
+ 771:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****             }
+ 772:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 773:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         }  /* (I2CS_I2C_SLAVE) */
+ 774:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         #endif
+ 775:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+ 776:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 777:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 778:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     /* FSM EXIT:
+ 779:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * Slave:  INTR_SLAVE_I2C_BUS_ERROR, INTR_SLAVE_I2C_ARB_LOST
+ 780:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     * Master: INTR_MASTER_I2C_BUS_ERROR, INTR_MASTER_I2C_ARB_LOST.
+ 781:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     */
+ 782:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     else
+ 783:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     {
+ 784:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_CTRL_REG &= (uint32) ~I2CS_CTRL_ENABLED; /* Disable SCB block */
+ 712              		.loc 1 784 0
+ 713 0472 234B     		ldr	r3, .L39+44
+ 714 0474 224A     		ldr	r2, .L39+44
+ 715 0476 1268     		ldr	r2, [r2]
+ 716 0478 5200     		lsl	r2, r2, #1
+ 717 047a 5208     		lsr	r2, r2, #1
+ 718 047c 1A60     		str	r2, [r3]
+ 785:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 786:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_state = I2CS_I2C_FSM_IDLE;
+ 719              		.loc 1 786 0
+ 720 047e 214B     		ldr	r3, .L39+48
+ 721 0480 1022     		mov	r2, #16
+ 722 0482 1A70     		strb	r2, [r3]
+ 787:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 788:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_DISABLE_SLAVE_AUTO_DATA;
+ 723              		.loc 1 788 0
+ 724 0484 204B     		ldr	r3, .L39+52
+ 725 0486 204A     		ldr	r2, .L39+52
+ 726 0488 1168     		ldr	r1, [r2]
+ 727 048a 204A     		ldr	r2, .L39+56
+ 728 048c 0A40     		and	r2, r1
+ 729 048e 1A60     		str	r2, [r3]
+ 789:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_DISABLE_MASTER_AUTO_DATA;
+ 730              		.loc 1 789 0
+ 731 0490 1D4B     		ldr	r3, .L39+52
+ 732 0492 1D4A     		ldr	r2, .L39+52
+ 733 0494 1168     		ldr	r1, [r2]
+ 734 0496 1E4A     		ldr	r2, .L39+60
+ 735 0498 0A40     		and	r2, r1
+ 736 049a 1A60     		str	r2, [r3]
+ 790:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 791:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     #if(I2CS_CY_SCBIP_V0)
+ 792:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_SetRxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 737              		.loc 1 792 0
+ 738 049c 1D4B     		ldr	r3, .L39+64
+ 739 049e 0022     		mov	r2, #0
+ 740 04a0 1A60     		str	r2, [r3]
+ 793:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_SetTxInterruptMode(I2CS_NO_INTR_SOURCES);
+ 741              		.loc 1 793 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 28
+
+
+ 742 04a2 1D4B     		ldr	r3, .L39+68
+ 743 04a4 0022     		mov	r2, #0
+ 744 04a6 1A60     		str	r2, [r3]
+ 794:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 795:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         /* Clear interrupt sources as they are not automatically cleared after SCB is disabled */
+ 796:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_ClearTxInterruptSource(I2CS_INTR_RX_ALL);
+ 745              		.loc 1 796 0
+ 746 04a8 144B     		ldr	r3, .L39+40
+ 747 04aa 1C4A     		ldr	r2, .L39+72
+ 748 04ac 1A60     		str	r2, [r3]
+ 797:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_ClearRxInterruptSource(I2CS_INTR_TX_ALL);
+ 749              		.loc 1 797 0
+ 750 04ae 0B4B     		ldr	r3, .L39+8
+ 751 04b0 1B4A     		ldr	r2, .L39+76
+ 752 04b2 1A60     		str	r2, [r3]
+ 798:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_ClearSlaveInterruptSource(I2CS_INTR_SLAVE_ALL);
+ 753              		.loc 1 798 0
+ 754 04b4 1B4B     		ldr	r3, .L39+80
+ 755 04b6 1C4A     		ldr	r2, .L39+84
+ 756 04b8 1A60     		str	r2, [r3]
+ 799:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_ClearMasterInterruptSource(I2CS_INTR_MASTER_ALL);
+ 757              		.loc 1 799 0
+ 758 04ba 1C4B     		ldr	r3, .L39+88
+ 759 04bc 1C4A     		ldr	r2, .L39+92
+ 760 04be 1A60     		str	r2, [r3]
+ 800:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     #endif /* (I2CS_CY_SCBIP_V0) */
+ 801:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** 
+ 802:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****         I2CS_CTRL_REG |= (uint32) I2CS_CTRL_ENABLED;  /* Enable SCB block */
+ 761              		.loc 1 802 0
+ 762 04c0 0F4B     		ldr	r3, .L39+44
+ 763 04c2 0F4A     		ldr	r2, .L39+44
+ 764 04c4 1268     		ldr	r2, [r2]
+ 765 04c6 8021     		mov	r1, #128
+ 766 04c8 0906     		lsl	r1, r1, #24
+ 767 04ca 0A43     		orr	r2, r1
+ 768 04cc 1A60     		str	r2, [r3]
+ 769              	.L1:
+ 803:.\Generated_Source\PSoC4/I2CS_I2C_INT.c ****     }
+ 804:.\Generated_Source\PSoC4/I2CS_I2C_INT.c **** }
+ 770              		.loc 1 804 0
+ 771 04ce BD46     		mov	sp, r7
+ 772 04d0 02B0     		add	sp, sp, #8
+ 773              		@ sp needed for prologue
+ 774 04d2 80BD     		pop	{r7, pc}
+ 775              	.L40:
+ 776              		.align	2
+ 777              	.L39:
+ 778 04d4 6C000640 		.word	1074135148
+ 779 04d8 00000000 		.word	I2CS_slStatus
+ 780 04dc C00F0640 		.word	1074139072
+ 781 04e0 8C0F0640 		.word	1074139020
+ 782 04e4 00000000 		.word	I2CS_slRdBufIndexTmp
+ 783 04e8 00000000 		.word	I2CS_slRdBufSize
+ 784 04ec 40020640 		.word	1074135616
+ 785 04f0 00000000 		.word	I2CS_slRdBufPtr
+ 786 04f4 00000000 		.word	I2CS_slOverFlowCount
+ 787 04f8 08020640 		.word	1074135560
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 29
+
+
+ 788 04fc 800F0640 		.word	1074139008
+ 789 0500 00000640 		.word	1074135040
+ 790 0504 00000000 		.word	I2CS_state
+ 791 0508 60000640 		.word	1074135136
+ 792 050c FF5FFFFF 		.word	-40961
+ 793 0510 FFFCFFFF 		.word	-769
+ 794 0514 C80F0640 		.word	1074139080
+ 795 0518 880F0640 		.word	1074139016
+ 796 051c ED0F0000 		.word	4077
+ 797 0520 F3070000 		.word	2035
+ 798 0524 400F0640 		.word	1074138944
+ 799 0528 FF0F0000 		.word	4095
+ 800 052c 000F0640 		.word	1074138880
+ 801 0530 17030000 		.word	791
+ 802              		.cfi_endproc
+ 803              	.LFE0:
+ 804              		.size	I2CS_I2C_ISR, .-I2CS_I2C_ISR
+ 805              		.text
+ 806              	.Letext0:
+ 807              		.file 2 "./Generated_Source/PSoC4/cytypes.h"
+ 808              		.file 3 ".\\Generated_Source\\PSoC4\\I2CS_PVT.h"
+ 809              		.file 4 ".\\Generated_Source\\PSoC4\\I2CS_I2C_PVT.h"
+ 810              		.section	.debug_info,"",%progbits
+ 811              	.Ldebug_info0:
+ 812 0000 93010000 		.4byte	0x193
+ 813 0004 0200     		.2byte	0x2
+ 814 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 815 000a 04       		.byte	0x4
+ 816 000b 01       		.uleb128 0x1
+ 817 000c F0010000 		.4byte	.LASF30
+ 818 0010 01       		.byte	0x1
+ 819 0011 11010000 		.4byte	.LASF31
+ 820 0015 90000000 		.4byte	.LASF32
+ 821 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 822 001d 00000000 		.4byte	0
+ 823 0021 00000000 		.4byte	0
+ 824 0025 00000000 		.4byte	.Ldebug_line0
+ 825 0029 02       		.uleb128 0x2
+ 826 002a 01       		.byte	0x1
+ 827 002b 06       		.byte	0x6
+ 828 002c 59020000 		.4byte	.LASF0
+ 829 0030 02       		.uleb128 0x2
+ 830 0031 01       		.byte	0x1
+ 831 0032 08       		.byte	0x8
+ 832 0033 4E000000 		.4byte	.LASF1
+ 833 0037 02       		.uleb128 0x2
+ 834 0038 02       		.byte	0x2
+ 835 0039 05       		.byte	0x5
+ 836 003a D6010000 		.4byte	.LASF2
+ 837 003e 02       		.uleb128 0x2
+ 838 003f 02       		.byte	0x2
+ 839 0040 07       		.byte	0x7
+ 840 0041 29000000 		.4byte	.LASF3
+ 841 0045 02       		.uleb128 0x2
+ 842 0046 04       		.byte	0x4
+ 843 0047 05       		.byte	0x5
+ 844 0048 50020000 		.4byte	.LASF4
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 30
+
+
+ 845 004c 02       		.uleb128 0x2
+ 846 004d 04       		.byte	0x4
+ 847 004e 07       		.byte	0x7
+ 848 004f 6E000000 		.4byte	.LASF5
+ 849 0053 02       		.uleb128 0x2
+ 850 0054 08       		.byte	0x8
+ 851 0055 05       		.byte	0x5
+ 852 0056 A7010000 		.4byte	.LASF6
+ 853 005a 02       		.uleb128 0x2
+ 854 005b 08       		.byte	0x8
+ 855 005c 07       		.byte	0x7
+ 856 005d 46010000 		.4byte	.LASF7
+ 857 0061 03       		.uleb128 0x3
+ 858 0062 04       		.byte	0x4
+ 859 0063 05       		.byte	0x5
+ 860 0064 696E7400 		.ascii	"int\000"
+ 861 0068 02       		.uleb128 0x2
+ 862 0069 04       		.byte	0x4
+ 863 006a 07       		.byte	0x7
+ 864 006b 39010000 		.4byte	.LASF8
+ 865 006f 04       		.uleb128 0x4
+ 866 0070 8A000000 		.4byte	.LASF9
+ 867 0074 02       		.byte	0x2
+ 868 0075 5B       		.byte	0x5b
+ 869 0076 30000000 		.4byte	0x30
+ 870 007a 04       		.uleb128 0x4
+ 871 007b 0A010000 		.4byte	.LASF10
+ 872 007f 02       		.byte	0x2
+ 873 0080 5D       		.byte	0x5d
+ 874 0081 4C000000 		.4byte	0x4c
+ 875 0085 02       		.uleb128 0x2
+ 876 0086 04       		.byte	0x4
+ 877 0087 04       		.byte	0x4
+ 878 0088 48000000 		.4byte	.LASF11
+ 879 008c 02       		.uleb128 0x2
+ 880 008d 08       		.byte	0x8
+ 881 008e 04       		.byte	0x4
+ 882 008f F3000000 		.4byte	.LASF12
+ 883 0093 02       		.uleb128 0x2
+ 884 0094 01       		.byte	0x1
+ 885 0095 08       		.byte	0x8
+ 886 0096 B5010000 		.4byte	.LASF13
+ 887 009a 05       		.uleb128 0x5
+ 888 009b 6F000000 		.4byte	0x6f
+ 889 009f 04       		.uleb128 0x4
+ 890 00a0 0E000000 		.4byte	.LASF14
+ 891 00a4 02       		.byte	0x2
+ 892 00a5 F2       		.byte	0xf2
+ 893 00a6 AA000000 		.4byte	0xaa
+ 894 00aa 05       		.uleb128 0x5
+ 895 00ab 7A000000 		.4byte	0x7a
+ 896 00af 06       		.uleb128 0x6
+ 897 00b0 72010000 		.4byte	.LASF15
+ 898 00b4 02       		.byte	0x2
+ 899 00b5 0201     		.2byte	0x102
+ 900 00b7 BB000000 		.4byte	0xbb
+ 901 00bb 07       		.uleb128 0x7
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 31
+
+
+ 902 00bc 04       		.byte	0x4
+ 903 00bd C1000000 		.4byte	0xc1
+ 904 00c1 08       		.uleb128 0x8
+ 905 00c2 01       		.byte	0x1
+ 906 00c3 02       		.uleb128 0x2
+ 907 00c4 04       		.byte	0x4
+ 908 00c5 07       		.byte	0x7
+ 909 00c6 9E010000 		.4byte	.LASF16
+ 910 00ca 09       		.uleb128 0x9
+ 911 00cb 01       		.byte	0x1
+ 912 00cc 7F010000 		.4byte	.LASF33
+ 913 00d0 01       		.byte	0x1
+ 914 00d1 24       		.byte	0x24
+ 915 00d2 01       		.byte	0x1
+ 916 00d3 00000000 		.4byte	.LFB0
+ 917 00d7 34050000 		.4byte	.LFE0
+ 918 00db 00000000 		.4byte	.LLST0
+ 919 00df 01       		.byte	0x1
+ 920 00e0 01010000 		.4byte	0x101
+ 921 00e4 0A       		.uleb128 0xa
+ 922 00e5 80000000 		.4byte	.LASF17
+ 923 00e9 01       		.byte	0x1
+ 924 00ea 26       		.byte	0x26
+ 925 00eb 7A000000 		.4byte	0x7a
+ 926 00ef 02       		.byte	0x2
+ 927 00f0 91       		.byte	0x91
+ 928 00f1 74       		.sleb128 -12
+ 929 00f2 0A       		.uleb128 0xa
+ 930 00f3 3C000000 		.4byte	.LASF18
+ 931 00f7 01       		.byte	0x1
+ 932 00f8 27       		.byte	0x27
+ 933 00f9 7A000000 		.4byte	0x7a
+ 934 00fd 02       		.byte	0x2
+ 935 00fe 91       		.byte	0x91
+ 936 00ff 70       		.sleb128 -16
+ 937 0100 00       		.byte	0
+ 938 0101 0B       		.uleb128 0xb
+ 939 0102 39020000 		.4byte	.LASF19
+ 940 0106 03       		.byte	0x3
+ 941 0107 37       		.byte	0x37
+ 942 0108 AF000000 		.4byte	0xaf
+ 943 010c 01       		.byte	0x1
+ 944 010d 01       		.byte	0x1
+ 945 010e 0B       		.uleb128 0xb
+ 946 010f BA010000 		.4byte	.LASF20
+ 947 0113 04       		.byte	0x4
+ 948 0114 1D       		.byte	0x1d
+ 949 0115 9A000000 		.4byte	0x9a
+ 950 0119 01       		.byte	0x1
+ 951 011a 01       		.byte	0x1
+ 952 011b 0B       		.uleb128 0xb
+ 953 011c 00000000 		.4byte	.LASF21
+ 954 0120 04       		.byte	0x4
+ 955 0121 20       		.byte	0x20
+ 956 0122 9A000000 		.4byte	0x9a
+ 957 0126 01       		.byte	0x1
+ 958 0127 01       		.byte	0x1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 32
+
+
+ 959 0128 0B       		.uleb128 0xb
+ 960 0129 E0010000 		.4byte	.LASF22
+ 961 012d 04       		.byte	0x4
+ 962 012e 23       		.byte	0x23
+ 963 012f 35010000 		.4byte	0x135
+ 964 0133 01       		.byte	0x1
+ 965 0134 01       		.byte	0x1
+ 966 0135 07       		.uleb128 0x7
+ 967 0136 04       		.byte	0x4
+ 968 0137 9A000000 		.4byte	0x9a
+ 969 013b 0B       		.uleb128 0xb
+ 970 013c C5010000 		.4byte	.LASF23
+ 971 0140 04       		.byte	0x4
+ 972 0141 24       		.byte	0x24
+ 973 0142 AA000000 		.4byte	0xaa
+ 974 0146 01       		.byte	0x1
+ 975 0147 01       		.byte	0x1
+ 976 0148 0B       		.uleb128 0xb
+ 977 0149 5C000000 		.4byte	.LASF24
+ 978 014d 04       		.byte	0x4
+ 979 014e 25       		.byte	0x25
+ 980 014f AA000000 		.4byte	0xaa
+ 981 0153 01       		.byte	0x1
+ 982 0154 01       		.byte	0x1
+ 983 0155 0B       		.uleb128 0xb
+ 984 0156 FA000000 		.4byte	.LASF25
+ 985 015a 04       		.byte	0x4
+ 986 015b 28       		.byte	0x28
+ 987 015c 35010000 		.4byte	0x135
+ 988 0160 01       		.byte	0x1
+ 989 0161 01       		.byte	0x1
+ 990 0162 0B       		.uleb128 0xb
+ 991 0163 65020000 		.4byte	.LASF26
+ 992 0167 04       		.byte	0x4
+ 993 0168 29       		.byte	0x29
+ 994 0169 AA000000 		.4byte	0xaa
+ 995 016d 01       		.byte	0x1
+ 996 016e 01       		.byte	0x1
+ 997 016f 0B       		.uleb128 0xb
+ 998 0170 8C010000 		.4byte	.LASF27
+ 999 0174 04       		.byte	0x4
+ 1000 0175 2A       		.byte	0x2a
+ 1001 0176 AA000000 		.4byte	0xaa
+ 1002 017a 01       		.byte	0x1
+ 1003 017b 01       		.byte	0x1
+ 1004 017c 0B       		.uleb128 0xb
+ 1005 017d 5D010000 		.4byte	.LASF28
+ 1006 0181 04       		.byte	0x4
+ 1007 0182 2B       		.byte	0x2b
+ 1008 0183 AA000000 		.4byte	0xaa
+ 1009 0187 01       		.byte	0x1
+ 1010 0188 01       		.byte	0x1
+ 1011 0189 0B       		.uleb128 0xb
+ 1012 018a 14000000 		.4byte	.LASF29
+ 1013 018e 04       		.byte	0x4
+ 1014 018f 2C       		.byte	0x2c
+ 1015 0190 9A000000 		.4byte	0x9a
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 33
+
+
+ 1016 0194 01       		.byte	0x1
+ 1017 0195 01       		.byte	0x1
+ 1018 0196 00       		.byte	0
+ 1019              		.section	.debug_abbrev,"",%progbits
+ 1020              	.Ldebug_abbrev0:
+ 1021 0000 01       		.uleb128 0x1
+ 1022 0001 11       		.uleb128 0x11
+ 1023 0002 01       		.byte	0x1
+ 1024 0003 25       		.uleb128 0x25
+ 1025 0004 0E       		.uleb128 0xe
+ 1026 0005 13       		.uleb128 0x13
+ 1027 0006 0B       		.uleb128 0xb
+ 1028 0007 03       		.uleb128 0x3
+ 1029 0008 0E       		.uleb128 0xe
+ 1030 0009 1B       		.uleb128 0x1b
+ 1031 000a 0E       		.uleb128 0xe
+ 1032 000b 55       		.uleb128 0x55
+ 1033 000c 06       		.uleb128 0x6
+ 1034 000d 11       		.uleb128 0x11
+ 1035 000e 01       		.uleb128 0x1
+ 1036 000f 52       		.uleb128 0x52
+ 1037 0010 01       		.uleb128 0x1
+ 1038 0011 10       		.uleb128 0x10
+ 1039 0012 06       		.uleb128 0x6
+ 1040 0013 00       		.byte	0
+ 1041 0014 00       		.byte	0
+ 1042 0015 02       		.uleb128 0x2
+ 1043 0016 24       		.uleb128 0x24
+ 1044 0017 00       		.byte	0
+ 1045 0018 0B       		.uleb128 0xb
+ 1046 0019 0B       		.uleb128 0xb
+ 1047 001a 3E       		.uleb128 0x3e
+ 1048 001b 0B       		.uleb128 0xb
+ 1049 001c 03       		.uleb128 0x3
+ 1050 001d 0E       		.uleb128 0xe
+ 1051 001e 00       		.byte	0
+ 1052 001f 00       		.byte	0
+ 1053 0020 03       		.uleb128 0x3
+ 1054 0021 24       		.uleb128 0x24
+ 1055 0022 00       		.byte	0
+ 1056 0023 0B       		.uleb128 0xb
+ 1057 0024 0B       		.uleb128 0xb
+ 1058 0025 3E       		.uleb128 0x3e
+ 1059 0026 0B       		.uleb128 0xb
+ 1060 0027 03       		.uleb128 0x3
+ 1061 0028 08       		.uleb128 0x8
+ 1062 0029 00       		.byte	0
+ 1063 002a 00       		.byte	0
+ 1064 002b 04       		.uleb128 0x4
+ 1065 002c 16       		.uleb128 0x16
+ 1066 002d 00       		.byte	0
+ 1067 002e 03       		.uleb128 0x3
+ 1068 002f 0E       		.uleb128 0xe
+ 1069 0030 3A       		.uleb128 0x3a
+ 1070 0031 0B       		.uleb128 0xb
+ 1071 0032 3B       		.uleb128 0x3b
+ 1072 0033 0B       		.uleb128 0xb
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 34
+
+
+ 1073 0034 49       		.uleb128 0x49
+ 1074 0035 13       		.uleb128 0x13
+ 1075 0036 00       		.byte	0
+ 1076 0037 00       		.byte	0
+ 1077 0038 05       		.uleb128 0x5
+ 1078 0039 35       		.uleb128 0x35
+ 1079 003a 00       		.byte	0
+ 1080 003b 49       		.uleb128 0x49
+ 1081 003c 13       		.uleb128 0x13
+ 1082 003d 00       		.byte	0
+ 1083 003e 00       		.byte	0
+ 1084 003f 06       		.uleb128 0x6
+ 1085 0040 16       		.uleb128 0x16
+ 1086 0041 00       		.byte	0
+ 1087 0042 03       		.uleb128 0x3
+ 1088 0043 0E       		.uleb128 0xe
+ 1089 0044 3A       		.uleb128 0x3a
+ 1090 0045 0B       		.uleb128 0xb
+ 1091 0046 3B       		.uleb128 0x3b
+ 1092 0047 05       		.uleb128 0x5
+ 1093 0048 49       		.uleb128 0x49
+ 1094 0049 13       		.uleb128 0x13
+ 1095 004a 00       		.byte	0
+ 1096 004b 00       		.byte	0
+ 1097 004c 07       		.uleb128 0x7
+ 1098 004d 0F       		.uleb128 0xf
+ 1099 004e 00       		.byte	0
+ 1100 004f 0B       		.uleb128 0xb
+ 1101 0050 0B       		.uleb128 0xb
+ 1102 0051 49       		.uleb128 0x49
+ 1103 0052 13       		.uleb128 0x13
+ 1104 0053 00       		.byte	0
+ 1105 0054 00       		.byte	0
+ 1106 0055 08       		.uleb128 0x8
+ 1107 0056 15       		.uleb128 0x15
+ 1108 0057 00       		.byte	0
+ 1109 0058 27       		.uleb128 0x27
+ 1110 0059 0C       		.uleb128 0xc
+ 1111 005a 00       		.byte	0
+ 1112 005b 00       		.byte	0
+ 1113 005c 09       		.uleb128 0x9
+ 1114 005d 2E       		.uleb128 0x2e
+ 1115 005e 01       		.byte	0x1
+ 1116 005f 3F       		.uleb128 0x3f
+ 1117 0060 0C       		.uleb128 0xc
+ 1118 0061 03       		.uleb128 0x3
+ 1119 0062 0E       		.uleb128 0xe
+ 1120 0063 3A       		.uleb128 0x3a
+ 1121 0064 0B       		.uleb128 0xb
+ 1122 0065 3B       		.uleb128 0x3b
+ 1123 0066 0B       		.uleb128 0xb
+ 1124 0067 27       		.uleb128 0x27
+ 1125 0068 0C       		.uleb128 0xc
+ 1126 0069 11       		.uleb128 0x11
+ 1127 006a 01       		.uleb128 0x1
+ 1128 006b 12       		.uleb128 0x12
+ 1129 006c 01       		.uleb128 0x1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 35
+
+
+ 1130 006d 40       		.uleb128 0x40
+ 1131 006e 06       		.uleb128 0x6
+ 1132 006f 9642     		.uleb128 0x2116
+ 1133 0071 0C       		.uleb128 0xc
+ 1134 0072 01       		.uleb128 0x1
+ 1135 0073 13       		.uleb128 0x13
+ 1136 0074 00       		.byte	0
+ 1137 0075 00       		.byte	0
+ 1138 0076 0A       		.uleb128 0xa
+ 1139 0077 34       		.uleb128 0x34
+ 1140 0078 00       		.byte	0
+ 1141 0079 03       		.uleb128 0x3
+ 1142 007a 0E       		.uleb128 0xe
+ 1143 007b 3A       		.uleb128 0x3a
+ 1144 007c 0B       		.uleb128 0xb
+ 1145 007d 3B       		.uleb128 0x3b
+ 1146 007e 0B       		.uleb128 0xb
+ 1147 007f 49       		.uleb128 0x49
+ 1148 0080 13       		.uleb128 0x13
+ 1149 0081 02       		.uleb128 0x2
+ 1150 0082 0A       		.uleb128 0xa
+ 1151 0083 00       		.byte	0
+ 1152 0084 00       		.byte	0
+ 1153 0085 0B       		.uleb128 0xb
+ 1154 0086 34       		.uleb128 0x34
+ 1155 0087 00       		.byte	0
+ 1156 0088 03       		.uleb128 0x3
+ 1157 0089 0E       		.uleb128 0xe
+ 1158 008a 3A       		.uleb128 0x3a
+ 1159 008b 0B       		.uleb128 0xb
+ 1160 008c 3B       		.uleb128 0x3b
+ 1161 008d 0B       		.uleb128 0xb
+ 1162 008e 49       		.uleb128 0x49
+ 1163 008f 13       		.uleb128 0x13
+ 1164 0090 3F       		.uleb128 0x3f
+ 1165 0091 0C       		.uleb128 0xc
+ 1166 0092 3C       		.uleb128 0x3c
+ 1167 0093 0C       		.uleb128 0xc
+ 1168 0094 00       		.byte	0
+ 1169 0095 00       		.byte	0
+ 1170 0096 00       		.byte	0
+ 1171              		.section	.debug_loc,"",%progbits
+ 1172              	.Ldebug_loc0:
+ 1173              	.LLST0:
+ 1174 0000 00000000 		.4byte	.LFB0
+ 1175 0004 02000000 		.4byte	.LCFI0
+ 1176 0008 0200     		.2byte	0x2
+ 1177 000a 7D       		.byte	0x7d
+ 1178 000b 00       		.sleb128 0
+ 1179 000c 02000000 		.4byte	.LCFI0
+ 1180 0010 04000000 		.4byte	.LCFI1
+ 1181 0014 0200     		.2byte	0x2
+ 1182 0016 7D       		.byte	0x7d
+ 1183 0017 08       		.sleb128 8
+ 1184 0018 04000000 		.4byte	.LCFI1
+ 1185 001c 06000000 		.4byte	.LCFI2
+ 1186 0020 0200     		.2byte	0x2
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 36
+
+
+ 1187 0022 7D       		.byte	0x7d
+ 1188 0023 10       		.sleb128 16
+ 1189 0024 06000000 		.4byte	.LCFI2
+ 1190 0028 34050000 		.4byte	.LFE0
+ 1191 002c 0200     		.2byte	0x2
+ 1192 002e 77       		.byte	0x77
+ 1193 002f 10       		.sleb128 16
+ 1194 0030 00000000 		.4byte	0
+ 1195 0034 00000000 		.4byte	0
+ 1196              		.section	.debug_aranges,"",%progbits
+ 1197 0000 1C000000 		.4byte	0x1c
+ 1198 0004 0200     		.2byte	0x2
+ 1199 0006 00000000 		.4byte	.Ldebug_info0
+ 1200 000a 04       		.byte	0x4
+ 1201 000b 00       		.byte	0
+ 1202 000c 0000     		.2byte	0
+ 1203 000e 0000     		.2byte	0
+ 1204 0010 00000000 		.4byte	.LFB0
+ 1205 0014 34050000 		.4byte	.LFE0-.LFB0
+ 1206 0018 00000000 		.4byte	0
+ 1207 001c 00000000 		.4byte	0
+ 1208              		.section	.debug_ranges,"",%progbits
+ 1209              	.Ldebug_ranges0:
+ 1210 0000 00000000 		.4byte	.LFB0
+ 1211 0004 34050000 		.4byte	.LFE0
+ 1212 0008 00000000 		.4byte	0
+ 1213 000c 00000000 		.4byte	0
+ 1214              		.section	.debug_line,"",%progbits
+ 1215              	.Ldebug_line0:
+ 1216 0000 3D010000 		.section	.debug_str,"MS",%progbits,1
+ 1216      02006B00 
+ 1216      00000201 
+ 1216      FB0E0D00 
+ 1216      01010101 
+ 1217              	.LASF21:
+ 1218 0000 49324353 		.ascii	"I2CS_slStatus\000"
+ 1218      5F736C53 
+ 1218      74617475 
+ 1218      7300
+ 1219              	.LASF14:
+ 1220 000e 72656733 		.ascii	"reg32\000"
+ 1220      3200
+ 1221              	.LASF29:
+ 1222 0014 49324353 		.ascii	"I2CS_slOverFlowCount\000"
+ 1222      5F736C4F 
+ 1222      76657246 
+ 1222      6C6F7743 
+ 1222      6F756E74 
+ 1223              	.LASF3:
+ 1224 0029 73686F72 		.ascii	"short unsigned int\000"
+ 1224      7420756E 
+ 1224      7369676E 
+ 1224      65642069 
+ 1224      6E7400
+ 1225              	.LASF18:
+ 1226 003c 656E6454 		.ascii	"endTransfer\000"
+ 1226      72616E73 
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 37
+
+
+ 1226      66657200 
+ 1227              	.LASF11:
+ 1228 0048 666C6F61 		.ascii	"float\000"
+ 1228      7400
+ 1229              	.LASF1:
+ 1230 004e 756E7369 		.ascii	"unsigned char\000"
+ 1230      676E6564 
+ 1230      20636861 
+ 1230      7200
+ 1231              	.LASF24:
+ 1232 005c 49324353 		.ascii	"I2CS_slWrBufIndex\000"
+ 1232      5F736C57 
+ 1232      72427566 
+ 1232      496E6465 
+ 1232      7800
+ 1233              	.LASF5:
+ 1234 006e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1234      20756E73 
+ 1234      69676E65 
+ 1234      6420696E 
+ 1234      7400
+ 1235              	.LASF17:
+ 1236 0080 64696666 		.ascii	"diffCount\000"
+ 1236      436F756E 
+ 1236      7400
+ 1237              	.LASF9:
+ 1238 008a 75696E74 		.ascii	"uint8\000"
+ 1238      3800
+ 1239              	.LASF32:
+ 1240 0090 463A5C55 		.ascii	"F:\\Utilisateurs\\demasson\\Documents\\EPM\\PSoC Cr"
+ 1240      74696C69 
+ 1240      73617465 
+ 1240      7572735C 
+ 1240      64656D61 
+ 1241 00be 6561746F 		.ascii	"eator\\EPM2.0\\EPM_parfait\\EYESAT_EPM\\EYESAT_EPM."
+ 1241      725C4550 
+ 1241      4D322E30 
+ 1241      5C45504D 
+ 1241      5F706172 
+ 1242 00ed 63796473 		.ascii	"cydsn\000"
+ 1242      6E00
+ 1243              	.LASF12:
+ 1244 00f3 646F7562 		.ascii	"double\000"
+ 1244      6C6500
+ 1245              	.LASF25:
+ 1246 00fa 49324353 		.ascii	"I2CS_slRdBufPtr\000"
+ 1246      5F736C52 
+ 1246      64427566 
+ 1246      50747200 
+ 1247              	.LASF10:
+ 1248 010a 75696E74 		.ascii	"uint32\000"
+ 1248      333200
+ 1249              	.LASF31:
+ 1250 0111 2E5C4765 		.ascii	".\\Generated_Source\\PSoC4\\I2CS_I2C_INT.c\000"
+ 1250      6E657261 
+ 1250      7465645F 
+ 1250      536F7572 
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 38
+
+
+ 1250      63655C50 
+ 1251              	.LASF8:
+ 1252 0139 756E7369 		.ascii	"unsigned int\000"
+ 1252      676E6564 
+ 1252      20696E74 
+ 1252      00
+ 1253              	.LASF7:
+ 1254 0146 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1254      206C6F6E 
+ 1254      6720756E 
+ 1254      7369676E 
+ 1254      65642069 
+ 1255              	.LASF28:
+ 1256 015d 49324353 		.ascii	"I2CS_slRdBufIndexTmp\000"
+ 1256      5F736C52 
+ 1256      64427566 
+ 1256      496E6465 
+ 1256      78546D70 
+ 1257              	.LASF15:
+ 1258 0172 63796973 		.ascii	"cyisraddress\000"
+ 1258      72616464 
+ 1258      72657373 
+ 1258      00
+ 1259              	.LASF33:
+ 1260 017f 49324353 		.ascii	"I2CS_I2C_ISR\000"
+ 1260      5F493243 
+ 1260      5F495352 
+ 1260      00
+ 1261              	.LASF27:
+ 1262 018c 49324353 		.ascii	"I2CS_slRdBufIndex\000"
+ 1262      5F736C52 
+ 1262      64427566 
+ 1262      496E6465 
+ 1262      7800
+ 1263              	.LASF16:
+ 1264 019e 73697A65 		.ascii	"sizetype\000"
+ 1264      74797065 
+ 1264      00
+ 1265              	.LASF6:
+ 1266 01a7 6C6F6E67 		.ascii	"long long int\000"
+ 1266      206C6F6E 
+ 1266      6720696E 
+ 1266      7400
+ 1267              	.LASF13:
+ 1268 01b5 63686172 		.ascii	"char\000"
+ 1268      00
+ 1269              	.LASF20:
+ 1270 01ba 49324353 		.ascii	"I2CS_state\000"
+ 1270      5F737461 
+ 1270      746500
+ 1271              	.LASF23:
+ 1272 01c5 49324353 		.ascii	"I2CS_slWrBufSize\000"
+ 1272      5F736C57 
+ 1272      72427566 
+ 1272      53697A65 
+ 1272      00
+ 1273              	.LASF2:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\cchPWZk4.s 			page 39
+
+
+ 1274 01d6 73686F72 		.ascii	"short int\000"
+ 1274      7420696E 
+ 1274      7400
+ 1275              	.LASF22:
+ 1276 01e0 49324353 		.ascii	"I2CS_slWrBufPtr\000"
+ 1276      5F736C57 
+ 1276      72427566 
+ 1276      50747200 
+ 1277              	.LASF30:
+ 1278 01f0 474E5520 		.ascii	"GNU C 4.7.3 20130312 (release) [ARM/embedded-4_7-br"
+ 1278      4320342E 
+ 1278      372E3320 
+ 1278      32303133 
+ 1278      30333132 
+ 1279 0223 616E6368 		.ascii	"anch revision 196615]\000"
+ 1279      20726576 
+ 1279      6973696F 
+ 1279      6E203139 
+ 1279      36363135 
+ 1280              	.LASF19:
+ 1281 0239 49324353 		.ascii	"I2CS_customIntrHandler\000"
+ 1281      5F637573 
+ 1281      746F6D49 
+ 1281      6E747248 
+ 1281      616E646C 
+ 1282              	.LASF4:
+ 1283 0250 6C6F6E67 		.ascii	"long int\000"
+ 1283      20696E74 
+ 1283      00
+ 1284              	.LASF0:
+ 1285 0259 7369676E 		.ascii	"signed char\000"
+ 1285      65642063 
+ 1285      68617200 
+ 1286              	.LASF26:
+ 1287 0265 49324353 		.ascii	"I2CS_slRdBufSize\000"
+ 1287      5F736C52 
+ 1287      64427566 
+ 1287      53697A65 
+ 1287      00
+ 1288              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.7.3 20130312 (release) [ARM/embedded-4_7-br

@@ -1,0 +1,3190 @@
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 6
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.comm	commande_ODB,1,1
+  18              		.global	registre
+  19              		.bss
+  20              		.type	registre, %object
+  21              		.size	registre, 1
+  22              	registre:
+  23 0000 00       		.space	1
+  24              		.comm	commande_avant_reset,1,1
+  25              		.global	CAS_ACTUEL
+  26 0001 000000   		.align	2
+  27              		.type	CAS_ACTUEL, %object
+  28              		.size	CAS_ACTUEL, 4
+  29              	CAS_ACTUEL:
+  30 0004 00000000 		.space	4
+  31              		.global	POSITION_ACTUELLE
+  32              		.type	POSITION_ACTUELLE, %object
+  33              		.size	POSITION_ACTUELLE, 1
+  34              	POSITION_ACTUELLE:
+  35 0008 00       		.space	1
+  36              		.comm	POSITION_SUIVANTE,1,1
+  37              		.global	NBR_CHANGEMENTS_POSITION
+  38              		.type	NBR_CHANGEMENTS_POSITION, %object
+  39              		.size	NBR_CHANGEMENTS_POSITION, 1
+  40              	NBR_CHANGEMENTS_POSITION:
+  41 0009 00       		.space	1
+  42              		.section	.rodata
+  43              		.align	2
+  44              		.type	eepromArray, %object
+  45              		.size	eepromArray, 3
+  46              	eepromArray:
+  47 0000 FF       		.byte	-1
+  48 0001 FF       		.byte	-1
+  49 0002 FF       		.byte	-1
+  50              		.global	array
+  51              		.bss
+  52 000a 0000     		.align	2
+  53              		.type	array, %object
+  54              		.size	array, 3
+  55              	array:
+  56 000c 000000   		.space	3
+  57              		.comm	wBuffer,1,4
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 2
+
+
+  58              		.global	rBuffer
+  59              		.data
+  60              		.align	2
+  61              		.type	rBuffer, %object
+  62              		.size	rBuffer, 1
+  63              	rBuffer:
+  64 0000 FF       		.byte	-1
+  65              		.global	position_connue
+  66 0001 000000   		.bss
+  67 000f 00       		.align	2
+  68              		.type	position_connue, %object
+  69              		.size	position_connue, 4
+  70              	position_connue:
+  71 0010 00000000 		.space	4
+  72              		.global	pblm_reset
+  73              		.align	2
+  74              		.type	pblm_reset, %object
+  75              		.size	pblm_reset, 4
+  76              	pblm_reset:
+  77 0014 00000000 		.space	4
+  78              		.comm	status,4,4
+  79              		.section	.text.main,"ax",%progbits
+  80              		.align	2
+  81              		.global	main
+  82              		.code	16
+  83              		.thumb_func
+  84              		.type	main, %function
+  85              	main:
+  86              	.LFB33:
+  87              		.file 1 ".\\main.c"
+   1:.\main.c      **** /* ========================================
+   2:.\main.c      ****  *
+   3:.\main.c      ****  * Copyright le CNES, 2014
+   4:.\main.c      ****  * All Rights Reserved
+   5:.\main.c      ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\main.c      ****  *
+   7:.\main.c      ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\main.c      ****  * WHICH IS THE PROPERTY OF le CNES.
+   9:.\main.c      ****  * Redactors : Camille Demasson et Quang Viet NGUYEN 
+  10:.\main.c      ****  *
+  11:.\main.c      ****  * ========================================
+  12:.\main.c      **** */
+  13:.\main.c      **** 
+  14:.\main.c      **** #include <project.h>  
+  15:.\main.c      **** #include <cyPm.h> 
+  16:.\main.c      **** 
+  17:.\main.c      **** #define CAS_ARRET             0     //cas où le moteur est arrêté
+  18:.\main.c      **** #define CAS_POSITION_INITIALE 1     //cas où le moteur tourne jusqu'à la position initiale
+  19:.\main.c      **** #define CAS_POSITION_X        2     //cas où le moteur tourne jusqu'à une position X
+  20:.\main.c      **** 
+  21:.\main.c      **** 
+  22:.\main.c      **** volatile uint8 commande_ODB;        //octet de commande de position
+  23:.\main.c      **** volatile uint8 registre=0x00;       //octet de commande du moteur : bit0=DIR ; bit1=enable
+  24:.\main.c      **** volatile uint8 commande_avant_reset;//octet sur lequel est recopiée la dernière commande de l'ODB
+  25:.\main.c      ****                                     //enregistrée sur la mémoire avant un reset    
+  26:.\main.c      **** 
+  27:.\main.c      **** volatile int   CAS_ACTUEL=CAS_ARRET;
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 3
+
+
+  28:.\main.c      **** volatile int8  POSITION_ACTUELLE=0, POSITION_SUIVANTE, NBR_CHANGEMENTS_POSITION=0;   
+  29:.\main.c      ****                                     /*POSITION_ACTUELLE : position actuelle des roues 
+  30:.\main.c      ****                                     par rapport à la position initiale où
+  31:.\main.c      ****                                     POSITION_ACTUELLE=0.
+  32:.\main.c      ****                                     POSITION_SUIVANTE : position commandée par l'ODB 
+  33:.\main.c      ****                                     qui n'est pas encore atteinte.
+  34:.\main.c      ****                                     NB_CHANGEMENT_POSITION : nombre de changements de 
+  35:.\main.c      ****                                     position à effectuer pour aller de
+  36:.\main.c      ****                                     POSITION_ACTUELLE à POSITION_SUIVANTE*/
+  37:.\main.c      ****                                     
+  38:.\main.c      **** static const uint8 CYCODE eepromArray[]={0xFF,0xFF,0xFF}; //Trois octets stockés en mémoire Eepro
+  39:.\main.c      ****                                     
+  40:.\main.c      **** uint8 array[]={0x00,0x00,0x00};     /*Trois octets à recopier dans la mémoire 
+  41:.\main.c      ****                                     1er octet : POSITION_ACTUELLE
+  42:.\main.c      ****                                     2ème octet : rBuffer[0]
+  43:.\main.c      ****                                     3ème octet : commande_ODB*/
+  44:.\main.c      **** 
+  45:.\main.c      **** uint8 wBuffer[1];                   // Buffer d'écriture I2C
+  46:.\main.c      **** uint8 rBuffer[1]={0xFF};            /* Buffer de lecture I2C contenant la position actuelle; 
+  47:.\main.c      ****                                     0xFF=position inconnue*/ 
+  48:.\main.c      **** int   position_connue=0;            /* 0 si la position n'a pas encore été initialisée
+  49:.\main.c      ****                                     1 si la position a déjà été initialisée une fois*/
+  50:.\main.c      **** int   pblm_reset=0;                 /* 1 si un reset a eu lieu alors que les roues étaient en rota
+  51:.\main.c      ****                                     0 sinon. */
+  52:.\main.c      **** cystatus status;
+  53:.\main.c      **** 
+  54:.\main.c      **** 
+  55:.\main.c      **** uint8 fonction_I2C (void);
+  56:.\main.c      **** uint8 calcul_PDS_position(void);
+  57:.\main.c      **** void Changer_position (void);
+  58:.\main.c      **** void automate (void);
+  59:.\main.c      **** 
+  60:.\main.c      **** 
+  61:.\main.c      **** int main()  
+  62:.\main.c      **** {
+  88              		.loc 1 62 0
+  89              		.cfi_startproc
+  90 0000 80B5     		push	{r7, lr}
+  91              	.LCFI0:
+  92              		.cfi_def_cfa_offset 8
+  93              		.cfi_offset 7, -8
+  94              		.cfi_offset 14, -4
+  95 0002 00AF     		add	r7, sp, #0
+  96              	.LCFI1:
+  97              		.cfi_def_cfa_register 7
+  63:.\main.c      ****     CyGlobalIntEnable;              // Interruptions autorisées
+  98              		.loc 1 63 0
+  99              	@ 63 ".\main.c" 1
+ 100 0004 62B6     		CPSIE   i
+ 101              	@ 0 "" 2
+  64:.\main.c      ****     I2CS_Start();
+ 102              		.loc 1 64 0
+ 103              		.code	16
+ 104 0006 FFF7FEFF 		bl	I2CS_Start
+  65:.\main.c      ****     Control_Reg_Write(registre);    //enable=0 avant le démarrage de la PWM
+ 105              		.loc 1 65 0
+ 106 000a 2F4B     		ldr	r3, .L5
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 4
+
+
+ 107 000c 1B78     		ldrb	r3, [r3]
+ 108 000e DBB2     		uxtb	r3, r3
+ 109 0010 181C     		mov	r0, r3
+ 110 0012 FFF7FEFF 		bl	Control_Reg_Write
+  66:.\main.c      ****     PWM_Start();
+ 111              		.loc 1 66 0
+ 112 0016 FFF7FEFF 		bl	PWM_Start
+  67:.\main.c      ****     Counter_1_Start();
+ 113              		.loc 1 67 0
+ 114 001a FFF7FEFF 		bl	Counter_1_Start
+  68:.\main.c      ****     EEPROM_Start();
+ 115              		.loc 1 68 0
+ 116 001e FFF7FEFF 		bl	EEPROM_Start
+  69:.\main.c      ****     I2CS_I2CSlaveInitWriteBuf(wBuffer,1);    // Initialisation des Buffers de l'esclave I2C 
+ 117              		.loc 1 69 0
+ 118 0022 2A4B     		ldr	r3, .L5+4
+ 119 0024 181C     		mov	r0, r3
+ 120 0026 0121     		mov	r1, #1
+ 121 0028 FFF7FEFF 		bl	I2CS_I2CSlaveInitWriteBuf
+  70:.\main.c      ****     I2CS_I2CSlaveInitReadBuf(rBuffer,1); 
+ 122              		.loc 1 70 0
+ 123 002c 284B     		ldr	r3, .L5+8
+ 124 002e 181C     		mov	r0, r3
+ 125 0030 0121     		mov	r1, #1
+ 126 0032 FFF7FEFF 		bl	I2CS_I2CSlaveInitReadBuf
+  71:.\main.c      ****     
+  72:.\main.c      ****     //WATCHDOG
+  73:.\main.c      ****     //initialisation des compteurs du watchdog
+  74:.\main.c      ****     CySysWdtEnable(CY_SYS_WDT_COUNTER0_MASK); //enable counter0
+ 127              		.loc 1 74 0
+ 128 0036 0120     		mov	r0, #1
+ 129 0038 FFF7FEFF 		bl	CySysWdtEnable
+  75:.\main.c      ****     //Génère des interruptions et un reset après la 3ème interruption sans retour
+  76:.\main.c      ****     CySysWdtWriteMode(CY_SYS_WDT_COUNTER0,CY_SYS_WDT_MODE_INT_RESET); 
+ 130              		.loc 1 76 0
+ 131 003c 0020     		mov	r0, #0
+ 132 003e 0321     		mov	r1, #3
+ 133 0040 FFF7FEFF 		bl	CySysWdtWriteMode
+  77:.\main.c      ****     //200us d'attente pour confirmer la configuration du Watchdog 
+  78:.\main.c      ****     CyDelayUs(200);
+ 134              		.loc 1 78 0
+ 135 0044 C820     		mov	r0, #200
+ 136 0046 FFF7FEFF 		bl	CyDelayUs
+  79:.\main.c      ****     
+  80:.\main.c      ****     if (eepromArray[0]!=0xFF)               //Réécriture de la valeur de la position actuelle 
+ 137              		.loc 1 80 0
+ 138 004a 224B     		ldr	r3, .L5+12
+ 139 004c 1B78     		ldrb	r3, [r3]
+ 140 004e FF2B     		cmp	r3, #255
+ 141 0050 06D0     		beq	.L2
+  81:.\main.c      ****     POSITION_ACTUELLE=eepromArray[0]-12;    //après un reset si elle est connue
+ 142              		.loc 1 81 0
+ 143 0052 204B     		ldr	r3, .L5+12
+ 144 0054 1B78     		ldrb	r3, [r3]
+ 145 0056 0C3B     		sub	r3, r3, #12
+ 146 0058 DBB2     		uxtb	r3, r3
+ 147 005a DAB2     		uxtb	r2, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 5
+
+
+ 148 005c 1E4B     		ldr	r3, .L5+16
+ 149 005e 1A70     		strb	r2, [r3]
+ 150              	.L2:
+  82:.\main.c      ****     
+  83:.\main.c      ****     if (eepromArray[1]!= 0xFF)
+ 151              		.loc 1 83 0
+ 152 0060 1C4B     		ldr	r3, .L5+12
+ 153 0062 5B78     		ldrb	r3, [r3, #1]
+ 154 0064 FF2B     		cmp	r3, #255
+ 155 0066 25D0     		beq	.L3
+  84:.\main.c      ****     {                                      
+  85:.\main.c      ****         if(eepromArray[1] != 0xEE)
+ 156              		.loc 1 85 0
+ 157 0068 1A4B     		ldr	r3, .L5+12
+ 158 006a 5B78     		ldrb	r3, [r3, #1]
+ 159 006c EE2B     		cmp	r3, #238
+ 160 006e 17D0     		beq	.L4
+  86:.\main.c      ****         {                                   //Réécriture de la valeur du PDS de la position actue
+  87:.\main.c      ****             position_connue=1;              //si elle est connue dans rBuffer[0] après un reset
+ 161              		.loc 1 87 0
+ 162 0070 1A4B     		ldr	r3, .L5+20
+ 163 0072 0122     		mov	r2, #1
+ 164 0074 1A60     		str	r2, [r3]
+  88:.\main.c      ****             rBuffer[0]=calcul_PDS_position();
+ 165              		.loc 1 88 0
+ 166 0076 FFF7FEFF 		bl	calcul_PDS_position
+ 167 007a 031C     		mov	r3, r0
+ 168 007c 1A1C     		mov	r2, r3
+ 169 007e 144B     		ldr	r3, .L5+8
+ 170 0080 1A70     		strb	r2, [r3]
+  89:.\main.c      ****             array[1]=rBuffer[0];
+ 171              		.loc 1 89 0
+ 172 0082 134B     		ldr	r3, .L5+8
+ 173 0084 1A78     		ldrb	r2, [r3]
+ 174 0086 164B     		ldr	r3, .L5+24
+ 175 0088 5A70     		strb	r2, [r3, #1]
+  90:.\main.c      ****             status = EEPROM_Write(array,eepromArray,3u);
+ 176              		.loc 1 90 0
+ 177 008a 154A     		ldr	r2, .L5+24
+ 178 008c 114B     		ldr	r3, .L5+12
+ 179 008e 101C     		mov	r0, r2
+ 180 0090 191C     		mov	r1, r3
+ 181 0092 0322     		mov	r2, #3
+ 182 0094 FFF7FEFF 		bl	EEPROM_Write
+ 183 0098 021C     		mov	r2, r0
+ 184 009a 124B     		ldr	r3, .L5+28
+ 185 009c 1A60     		str	r2, [r3]
+ 186 009e 09E0     		b	.L3
+ 187              	.L4:
+  91:.\main.c      ****         }
+  92:.\main.c      ****         else                                //cas où le reset est arrivé alors que les roues tour
+  93:.\main.c      ****         {
+  94:.\main.c      ****             pblm_reset=1;
+ 188              		.loc 1 94 0
+ 189 00a0 114B     		ldr	r3, .L5+32
+ 190 00a2 0122     		mov	r2, #1
+ 191 00a4 1A60     		str	r2, [r3]
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 6
+
+
+  95:.\main.c      ****             rBuffer[0]=0xFF;
+ 192              		.loc 1 95 0
+ 193 00a6 0A4B     		ldr	r3, .L5+8
+ 194 00a8 FF22     		mov	r2, #255
+ 195 00aa 1A70     		strb	r2, [r3]
+  96:.\main.c      ****             commande_avant_reset=eepromArray[2];
+ 196              		.loc 1 96 0
+ 197 00ac 094B     		ldr	r3, .L5+12
+ 198 00ae 9A78     		ldrb	r2, [r3, #2]
+ 199 00b0 0E4B     		ldr	r3, .L5+36
+ 200 00b2 1A70     		strb	r2, [r3]
+ 201              	.L3:
+  97:.\main.c      ****         }
+  98:.\main.c      ****     }
+  99:.\main.c      ****     
+ 100:.\main.c      ****     for(;;)
+ 101:.\main.c      ****     {
+ 102:.\main.c      ****         automate();
+ 202              		.loc 1 102 0 discriminator 1
+ 203 00b4 FFF7FEFF 		bl	automate
+ 103:.\main.c      ****         
+ 104:.\main.c      ****         //feed the dog
+ 105:.\main.c      ****   	    //remise à 0 du compteur counter0
+ 106:.\main.c      ****         CySysWdtResetCounters(CY_SYS_WDT_COUNTER0_RESET);  
+ 204              		.loc 1 106 0 discriminator 1
+ 205 00b8 0820     		mov	r0, #8
+ 206 00ba FFF7FEFF 		bl	CySysWdtResetCounters
+ 107:.\main.c      ****         //efface les dernières interruptions et empêche le reset du watchdog
+ 108:.\main.c      ****         CySysWdtClearInterrupt(CY_SYS_WDT_COUNTER0_INT);    
+ 207              		.loc 1 108 0 discriminator 1
+ 208 00be 0420     		mov	r0, #4
+ 209 00c0 FFF7FEFF 		bl	CySysWdtClearInterrupt
+ 109:.\main.c      ****     }  
+ 210              		.loc 1 109 0 discriminator 1
+ 211 00c4 F6E7     		b	.L3
+ 212              	.L6:
+ 213 00c6 C046     		.align	2
+ 214              	.L5:
+ 215 00c8 00000000 		.word	registre
+ 216 00cc 00000000 		.word	wBuffer
+ 217 00d0 00000000 		.word	rBuffer
+ 218 00d4 00000000 		.word	eepromArray
+ 219 00d8 00000000 		.word	POSITION_ACTUELLE
+ 220 00dc 00000000 		.word	position_connue
+ 221 00e0 00000000 		.word	array
+ 222 00e4 00000000 		.word	status
+ 223 00e8 00000000 		.word	pblm_reset
+ 224 00ec 00000000 		.word	commande_avant_reset
+ 225              		.cfi_endproc
+ 226              	.LFE33:
+ 227              		.size	main, .-main
+ 228              		.section	.text.fonction_I2C,"ax",%progbits
+ 229              		.align	2
+ 230              		.global	fonction_I2C
+ 231              		.code	16
+ 232              		.thumb_func
+ 233              		.type	fonction_I2C, %function
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 7
+
+
+ 234              	fonction_I2C:
+ 235              	.LFB34:
+ 110:.\main.c      **** } 										
+ 111:.\main.c      **** 
+ 112:.\main.c      **** 
+ 113:.\main.c      **** 
+ 114:.\main.c      **** //**********************************************************
+ 115:.\main.c      **** //description des fonctions
+ 116:.\main.c      **** 
+ 117:.\main.c      **** //**********************************************************
+ 118:.\main.c      **** // fonction de lecture, écriture du master I2C
+ 119:.\main.c      **** uint8 fonction_I2C (void)
+ 120:.\main.c      **** { 
+ 236              		.loc 1 120 0
+ 237              		.cfi_startproc
+ 238 0000 80B5     		push	{r7, lr}
+ 239              	.LCFI2:
+ 240              		.cfi_def_cfa_offset 8
+ 241              		.cfi_offset 7, -8
+ 242              		.cfi_offset 14, -4
+ 243 0002 82B0     		sub	sp, sp, #8
+ 244              	.LCFI3:
+ 245              		.cfi_def_cfa_offset 16
+ 246 0004 00AF     		add	r7, sp, #0
+ 247              	.LCFI4:
+ 248              		.cfi_def_cfa_register 7
+ 121:.\main.c      ****     uint8 commande=0xFF;
+ 249              		.loc 1 121 0
+ 250 0006 FB1D     		add	r3, r7, #7
+ 251 0008 FF22     		mov	r2, #255
+ 252 000a 1A70     		strb	r2, [r3]
+ 122:.\main.c      ****     
+ 123:.\main.c      ****     if(I2CS_I2CSlaveStatus()&I2CS_I2C_SSTAT_RD_CMPLT) // Si le buffer est lu par le maître (ODB)
+ 253              		.loc 1 123 0
+ 254 000c FFF7FEFF 		bl	I2CS_I2CSlaveStatus
+ 255 0010 021C     		mov	r2, r0
+ 256 0012 0123     		mov	r3, #1
+ 257 0014 1340     		and	r3, r2
+ 258 0016 03D0     		beq	.L8
+ 124:.\main.c      ****   
+ 125:.\main.c      ****     {  
+ 126:.\main.c      ****         //Efface le statut et le buffer de lecture
+ 127:.\main.c      ****         I2CS_I2CSlaveClearReadBuf();  
+ 259              		.loc 1 127 0
+ 260 0018 FFF7FEFF 		bl	I2CS_I2CSlaveClearReadBuf
+ 128:.\main.c      ****         I2CS_I2CSlaveClearReadStatus(); 
+ 261              		.loc 1 128 0
+ 262 001c FFF7FEFF 		bl	I2CS_I2CSlaveClearReadStatus
+ 263              	.L8:
+ 129:.\main.c      ****     }  
+ 130:.\main.c      ****         
+ 131:.\main.c      ****     
+ 132:.\main.c      ****     if(I2CS_I2CSlaveStatus()&I2CS_I2C_SSTAT_WR_CMPLT) // Si le buffer est écrit par le maître (OD
+ 264              		.loc 1 132 0
+ 265 0020 FFF7FEFF 		bl	I2CS_I2CSlaveStatus
+ 266 0024 021C     		mov	r2, r0
+ 267 0026 1023     		mov	r3, #16
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 8
+
+
+ 268 0028 1340     		and	r3, r2
+ 269 002a 17D0     		beq	.L9
+ 133:.\main.c      **** 
+ 134:.\main.c      ****     {           
+ 135:.\main.c      ****         // Efface le statut d'écriture 
+ 136:.\main.c      ****         I2CS_I2CSlaveClearWriteStatus(); 
+ 270              		.loc 1 136 0
+ 271 002c FFF7FEFF 		bl	I2CS_I2CSlaveClearWriteStatus
+ 137:.\main.c      ****         // Efface les buffers pour aider la transmission         
+ 138:.\main.c      ****         I2CS_I2CSlaveClearWriteBuf();   
+ 272              		.loc 1 138 0
+ 273 0030 FFF7FEFF 		bl	I2CS_I2CSlaveClearWriteBuf
+ 139:.\main.c      ****         I2CS_I2CSlaveClearReadBuf();
+ 274              		.loc 1 139 0
+ 275 0034 FFF7FEFF 		bl	I2CS_I2CSlaveClearReadBuf
+ 140:.\main.c      ****         
+ 141:.\main.c      ****         commande=wBuffer[0];    //commande=premier octet écrit par le master
+ 276              		.loc 1 141 0
+ 277 0038 FB1D     		add	r3, r7, #7
+ 278 003a 0B4A     		ldr	r2, .L11
+ 279 003c 1278     		ldrb	r2, [r2]
+ 280 003e 1A70     		strb	r2, [r3]
+ 142:.\main.c      ****         array[2]=commande;
+ 281              		.loc 1 142 0
+ 282 0040 0A4B     		ldr	r3, .L11+4
+ 283 0042 FA1D     		add	r2, r7, #7
+ 284 0044 1278     		ldrb	r2, [r2]
+ 285 0046 9A70     		strb	r2, [r3, #2]
+ 143:.\main.c      ****         status = EEPROM_Write(array,eepromArray,3u);
+ 286              		.loc 1 143 0
+ 287 0048 084A     		ldr	r2, .L11+4
+ 288 004a 094B     		ldr	r3, .L11+8
+ 289 004c 101C     		mov	r0, r2
+ 290 004e 191C     		mov	r1, r3
+ 291 0050 0322     		mov	r2, #3
+ 292 0052 FFF7FEFF 		bl	EEPROM_Write
+ 293 0056 021C     		mov	r2, r0
+ 294 0058 064B     		ldr	r3, .L11+12
+ 295 005a 1A60     		str	r2, [r3]
+ 296              	.L9:
+ 144:.\main.c      ****     }
+ 145:.\main.c      ****             
+ 146:.\main.c      ****     return commande;
+ 297              		.loc 1 146 0
+ 298 005c FB1D     		add	r3, r7, #7
+ 299 005e 1B78     		ldrb	r3, [r3]
+ 147:.\main.c      **** }
+ 300              		.loc 1 147 0
+ 301 0060 181C     		mov	r0, r3
+ 302 0062 BD46     		mov	sp, r7
+ 303 0064 02B0     		add	sp, sp, #8
+ 304              		@ sp needed for prologue
+ 305 0066 80BD     		pop	{r7, pc}
+ 306              	.L12:
+ 307              		.align	2
+ 308              	.L11:
+ 309 0068 00000000 		.word	wBuffer
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 9
+
+
+ 310 006c 00000000 		.word	array
+ 311 0070 00000000 		.word	eepromArray
+ 312 0074 00000000 		.word	status
+ 313              		.cfi_endproc
+ 314              	.LFE34:
+ 315              		.size	fonction_I2C, .-fonction_I2C
+ 316              		.global	__aeabi_idivmod
+ 317              		.section	.text.calcul_PDS_position,"ax",%progbits
+ 318              		.align	2
+ 319              		.global	calcul_PDS_position
+ 320              		.code	16
+ 321              		.thumb_func
+ 322              		.type	calcul_PDS_position, %function
+ 323              	calcul_PDS_position:
+ 324              	.LFB35:
+ 148:.\main.c      **** 
+ 149:.\main.c      **** 
+ 150:.\main.c      **** //**********************************************************
+ 151:.\main.c      **** //fonction de calcul du PDS position à écrire sur le Buffer de lecture I2C
+ 152:.\main.c      **** uint8 calcul_PDS_position(void)
+ 153:.\main.c      **** {
+ 325              		.loc 1 153 0
+ 326              		.cfi_startproc
+ 327 0000 80B5     		push	{r7, lr}
+ 328              	.LCFI5:
+ 329              		.cfi_def_cfa_offset 8
+ 330              		.cfi_offset 7, -8
+ 331              		.cfi_offset 14, -4
+ 332 0002 82B0     		sub	sp, sp, #8
+ 333              	.LCFI6:
+ 334              		.cfi_def_cfa_offset 16
+ 335 0004 00AF     		add	r7, sp, #0
+ 336              	.LCFI7:
+ 337              		.cfi_def_cfa_register 7
+ 154:.\main.c      ****     uint8 PDS_position=0;
+ 338              		.loc 1 154 0
+ 339 0006 FB1D     		add	r3, r7, #7
+ 340 0008 0022     		mov	r2, #0
+ 341 000a 1A70     		strb	r2, [r3]
+ 155:.\main.c      ****     PDS_position = (POSITION_ACTUELLE + 12) % 4;        //Calcul du filtre polarisant
+ 342              		.loc 1 155 0
+ 343 000c 194B     		ldr	r3, .L17
+ 344 000e 1B78     		ldrb	r3, [r3]
+ 345 0010 DBB2     		uxtb	r3, r3
+ 346 0012 5BB2     		sxtb	r3, r3
+ 347 0014 1A1C     		mov	r2, r3
+ 348 0016 0C32     		add	r2, r2, #12
+ 349 0018 174B     		ldr	r3, .L17+4
+ 350 001a 1340     		and	r3, r2
+ 351 001c 04D5     		bpl	.L14
+ 352 001e 013B     		sub	r3, r3, #1
+ 353 0020 0422     		mov	r2, #4
+ 354 0022 5242     		neg	r2, r2
+ 355 0024 1343     		orr	r3, r2
+ 356 0026 0133     		add	r3, r3, #1
+ 357              	.L14:
+ 358 0028 1A1C     		mov	r2, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 10
+
+
+ 359 002a FB1D     		add	r3, r7, #7
+ 360 002c 1A70     		strb	r2, [r3]
+ 156:.\main.c      ****     if (PDS_position == 0x03) PDS_position = 0x04;
+ 361              		.loc 1 156 0
+ 362 002e FB1D     		add	r3, r7, #7
+ 363 0030 1B78     		ldrb	r3, [r3]
+ 364 0032 032B     		cmp	r3, #3
+ 365 0034 02D1     		bne	.L15
+ 366              		.loc 1 156 0 is_stmt 0 discriminator 1
+ 367 0036 FB1D     		add	r3, r7, #7
+ 368 0038 0422     		mov	r2, #4
+ 369 003a 1A70     		strb	r2, [r3]
+ 370              	.L15:
+ 157:.\main.c      ****     
+ 158:.\main.c      ****     PDS_position |= (abs(POSITION_ACTUELLE - 7) % 3) << 4;//Calcul du filtre spectral
+ 371              		.loc 1 158 0 is_stmt 1
+ 372 003c 0D4B     		ldr	r3, .L17
+ 373 003e 1B78     		ldrb	r3, [r3]
+ 374 0040 DBB2     		uxtb	r3, r3
+ 375 0042 5BB2     		sxtb	r3, r3
+ 376 0044 073B     		sub	r3, r3, #7
+ 377 0046 DA17     		asr	r2, r3, #31
+ 378 0048 9B18     		add	r3, r3, r2
+ 379 004a 5340     		eor	r3, r2
+ 380 004c 181C     		mov	r0, r3
+ 381 004e 0321     		mov	r1, #3
+ 382 0050 FFF7FEFF 		bl	__aeabi_idivmod
+ 383 0054 0B1C     		mov	r3, r1
+ 384 0056 1B01     		lsl	r3, r3, #4
+ 385 0058 DAB2     		uxtb	r2, r3
+ 386 005a FB1D     		add	r3, r7, #7
+ 387 005c 1B78     		ldrb	r3, [r3]
+ 388 005e 1343     		orr	r3, r2
+ 389 0060 DAB2     		uxtb	r2, r3
+ 390 0062 FB1D     		add	r3, r7, #7
+ 391 0064 1A70     		strb	r2, [r3]
+ 159:.\main.c      ****     return PDS_position;
+ 392              		.loc 1 159 0
+ 393 0066 FB1D     		add	r3, r7, #7
+ 394 0068 1B78     		ldrb	r3, [r3]
+ 160:.\main.c      **** }
+ 395              		.loc 1 160 0
+ 396 006a 181C     		mov	r0, r3
+ 397 006c BD46     		mov	sp, r7
+ 398 006e 02B0     		add	sp, sp, #8
+ 399              		@ sp needed for prologue
+ 400 0070 80BD     		pop	{r7, pc}
+ 401              	.L18:
+ 402 0072 C046     		.align	2
+ 403              	.L17:
+ 404 0074 00000000 		.word	POSITION_ACTUELLE
+ 405 0078 03000080 		.word	-2147483645
+ 406              		.cfi_endproc
+ 407              	.LFE35:
+ 408              		.size	calcul_PDS_position, .-calcul_PDS_position
+ 409              		.section	.text.Changer_position,"ax",%progbits
+ 410              		.align	2
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 11
+
+
+ 411              		.global	Changer_position
+ 412              		.code	16
+ 413              		.thumb_func
+ 414              		.type	Changer_position, %function
+ 415              	Changer_position:
+ 416              	.LFB36:
+ 161:.\main.c      **** 
+ 162:.\main.c      **** 
+ 163:.\main.c      **** //**********************************************************
+ 164:.\main.c      **** //fonction de calcul du nombre de changement de positions à effectuer selon 
+ 165:.\main.c      **** //la position voulue
+ 166:.\main.c      **** void Changer_position (void)
+ 167:.\main.c      **** {  
+ 417              		.loc 1 167 0
+ 418              		.cfi_startproc
+ 419 0000 80B5     		push	{r7, lr}
+ 420              	.LCFI8:
+ 421              		.cfi_def_cfa_offset 8
+ 422              		.cfi_offset 7, -8
+ 423              		.cfi_offset 14, -4
+ 424 0002 00AF     		add	r7, sp, #0
+ 425              	.LCFI9:
+ 426              		.cfi_def_cfa_register 7
+ 168:.\main.c      ****     NBR_CHANGEMENTS_POSITION=POSITION_SUIVANTE-POSITION_ACTUELLE;
+ 427              		.loc 1 168 0
+ 428 0004 334B     		ldr	r3, .L25
+ 429 0006 1B78     		ldrb	r3, [r3]
+ 430 0008 DBB2     		uxtb	r3, r3
+ 431 000a DAB2     		uxtb	r2, r3
+ 432 000c 324B     		ldr	r3, .L25+4
+ 433 000e 1B78     		ldrb	r3, [r3]
+ 434 0010 DBB2     		uxtb	r3, r3
+ 435 0012 DBB2     		uxtb	r3, r3
+ 436 0014 D31A     		sub	r3, r2, r3
+ 437 0016 DBB2     		uxtb	r3, r3
+ 438 0018 DAB2     		uxtb	r2, r3
+ 439 001a 304B     		ldr	r3, .L25+8
+ 440 001c 1A70     		strb	r2, [r3]
+ 169:.\main.c      ****     if (NBR_CHANGEMENTS_POSITION>6)             //permet d'avoir toujours |nbr_chang_pos|<=6
+ 441              		.loc 1 169 0
+ 442 001e 2F4B     		ldr	r3, .L25+8
+ 443 0020 1B78     		ldrb	r3, [r3]
+ 444 0022 DBB2     		uxtb	r3, r3
+ 445 0024 5BB2     		sxtb	r3, r3
+ 446 0026 062B     		cmp	r3, #6
+ 447 0028 0EDD     		ble	.L20
+ 170:.\main.c      **** 
+ 171:.\main.c      ****     {                           
+ 172:.\main.c      ****         NBR_CHANGEMENTS_POSITION=POSITION_SUIVANTE-12-POSITION_ACTUELLE;
+ 448              		.loc 1 172 0
+ 449 002a 2A4B     		ldr	r3, .L25
+ 450 002c 1B78     		ldrb	r3, [r3]
+ 451 002e DBB2     		uxtb	r3, r3
+ 452 0030 DAB2     		uxtb	r2, r3
+ 453 0032 294B     		ldr	r3, .L25+4
+ 454 0034 1B78     		ldrb	r3, [r3]
+ 455 0036 DBB2     		uxtb	r3, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 12
+
+
+ 456 0038 DBB2     		uxtb	r3, r3
+ 457 003a D31A     		sub	r3, r2, r3
+ 458 003c DBB2     		uxtb	r3, r3
+ 459 003e 0C3B     		sub	r3, r3, #12
+ 460 0040 DBB2     		uxtb	r3, r3
+ 461 0042 DAB2     		uxtb	r2, r3
+ 462 0044 254B     		ldr	r3, .L25+8
+ 463 0046 1A70     		strb	r2, [r3]
+ 464              	.L20:
+ 173:.\main.c      ****     }
+ 174:.\main.c      ****     if (NBR_CHANGEMENTS_POSITION<-6)
+ 465              		.loc 1 174 0
+ 466 0048 244B     		ldr	r3, .L25+8
+ 467 004a 1B78     		ldrb	r3, [r3]
+ 468 004c DBB2     		uxtb	r3, r3
+ 469 004e 5BB2     		sxtb	r3, r3
+ 470 0050 0633     		add	r3, r3, #6
+ 471 0052 0EDA     		bge	.L21
+ 175:.\main.c      ****     {
+ 176:.\main.c      ****         NBR_CHANGEMENTS_POSITION=POSITION_SUIVANTE+12-POSITION_ACTUELLE;
+ 472              		.loc 1 176 0
+ 473 0054 1F4B     		ldr	r3, .L25
+ 474 0056 1B78     		ldrb	r3, [r3]
+ 475 0058 DBB2     		uxtb	r3, r3
+ 476 005a DAB2     		uxtb	r2, r3
+ 477 005c 1E4B     		ldr	r3, .L25+4
+ 478 005e 1B78     		ldrb	r3, [r3]
+ 479 0060 DBB2     		uxtb	r3, r3
+ 480 0062 DBB2     		uxtb	r3, r3
+ 481 0064 D31A     		sub	r3, r2, r3
+ 482 0066 DBB2     		uxtb	r3, r3
+ 483 0068 0C33     		add	r3, r3, #12
+ 484 006a DBB2     		uxtb	r3, r3
+ 485 006c DAB2     		uxtb	r2, r3
+ 486 006e 1B4B     		ldr	r3, .L25+8
+ 487 0070 1A70     		strb	r2, [r3]
+ 488              	.L21:
+ 177:.\main.c      ****     }
+ 178:.\main.c      ****     if (NBR_CHANGEMENTS_POSITION != 0)
+ 489              		.loc 1 178 0
+ 490 0072 1A4B     		ldr	r3, .L25+8
+ 491 0074 1B78     		ldrb	r3, [r3]
+ 492 0076 DBB2     		uxtb	r3, r3
+ 493 0078 002B     		cmp	r3, #0
+ 494 007a 29D0     		beq	.L19
+ 179:.\main.c      ****     {
+ 180:.\main.c      ****         if (NBR_CHANGEMENTS_POSITION < 0)           
+ 495              		.loc 1 180 0
+ 496 007c 174B     		ldr	r3, .L25+8
+ 497 007e 1B78     		ldrb	r3, [r3]
+ 498 0080 DBB2     		uxtb	r3, r3
+ 499 0082 5BB2     		sxtb	r3, r3
+ 500 0084 002B     		cmp	r3, #0
+ 501 0086 0CDA     		bge	.L23
+ 181:.\main.c      ****         {
+ 182:.\main.c      ****             registre=0x03;          //enable=1 démarrage moteur ; DIR=0
+ 502              		.loc 1 182 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 13
+
+
+ 503 0088 154B     		ldr	r3, .L25+12
+ 504 008a 0322     		mov	r2, #3
+ 505 008c 1A70     		strb	r2, [r3]
+ 183:.\main.c      ****             NBR_CHANGEMENTS_POSITION=-NBR_CHANGEMENTS_POSITION;     //nombre de tour à faire posit
+ 506              		.loc 1 183 0
+ 507 008e 134B     		ldr	r3, .L25+8
+ 508 0090 1B78     		ldrb	r3, [r3]
+ 509 0092 DBB2     		uxtb	r3, r3
+ 510 0094 DBB2     		uxtb	r3, r3
+ 511 0096 5B42     		neg	r3, r3
+ 512 0098 DBB2     		uxtb	r3, r3
+ 513 009a DAB2     		uxtb	r2, r3
+ 514 009c 0F4B     		ldr	r3, .L25+8
+ 515 009e 1A70     		strb	r2, [r3]
+ 516 00a0 02E0     		b	.L24
+ 517              	.L23:
+ 184:.\main.c      **** 
+ 185:.\main.c      ****         } 
+ 186:.\main.c      ****         else registre=0x02;         //enable=1 démarrage moteur ; DIR=1
+ 518              		.loc 1 186 0
+ 519 00a2 0F4B     		ldr	r3, .L25+12
+ 520 00a4 0222     		mov	r2, #2
+ 521 00a6 1A70     		strb	r2, [r3]
+ 522              	.L24:
+ 187:.\main.c      ****         CAS_ACTUEL=CAS_POSITION_X;  //moteur tourne jusqu'à la position X des roues
+ 523              		.loc 1 187 0
+ 524 00a8 0E4B     		ldr	r3, .L25+16
+ 525 00aa 0222     		mov	r2, #2
+ 526 00ac 1A60     		str	r2, [r3]
+ 188:.\main.c      ****         rBuffer[0]=0xEE;
+ 527              		.loc 1 188 0
+ 528 00ae 0E4B     		ldr	r3, .L25+20
+ 529 00b0 EE22     		mov	r2, #238
+ 530 00b2 1A70     		strb	r2, [r3]
+ 189:.\main.c      ****         array[1]=rBuffer[0];
+ 531              		.loc 1 189 0
+ 532 00b4 0C4B     		ldr	r3, .L25+20
+ 533 00b6 1A78     		ldrb	r2, [r3]
+ 534 00b8 0C4B     		ldr	r3, .L25+24
+ 535 00ba 5A70     		strb	r2, [r3, #1]
+ 190:.\main.c      ****         status = EEPROM_Write(array,eepromArray,3u);
+ 536              		.loc 1 190 0
+ 537 00bc 0B4A     		ldr	r2, .L25+24
+ 538 00be 0C4B     		ldr	r3, .L25+28
+ 539 00c0 101C     		mov	r0, r2
+ 540 00c2 191C     		mov	r1, r3
+ 541 00c4 0322     		mov	r2, #3
+ 542 00c6 FFF7FEFF 		bl	EEPROM_Write
+ 543 00ca 021C     		mov	r2, r0
+ 544 00cc 094B     		ldr	r3, .L25+32
+ 545 00ce 1A60     		str	r2, [r3]
+ 546              	.L19:
+ 191:.\main.c      ****     }
+ 192:.\main.c      **** }
+ 547              		.loc 1 192 0
+ 548 00d0 BD46     		mov	sp, r7
+ 549              		@ sp needed for prologue
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 14
+
+
+ 550 00d2 80BD     		pop	{r7, pc}
+ 551              	.L26:
+ 552              		.align	2
+ 553              	.L25:
+ 554 00d4 00000000 		.word	POSITION_SUIVANTE
+ 555 00d8 00000000 		.word	POSITION_ACTUELLE
+ 556 00dc 00000000 		.word	NBR_CHANGEMENTS_POSITION
+ 557 00e0 00000000 		.word	registre
+ 558 00e4 00000000 		.word	CAS_ACTUEL
+ 559 00e8 00000000 		.word	rBuffer
+ 560 00ec 00000000 		.word	array
+ 561 00f0 00000000 		.word	eepromArray
+ 562 00f4 00000000 		.word	status
+ 563              		.cfi_endproc
+ 564              	.LFE36:
+ 565              		.size	Changer_position, .-Changer_position
+ 566              		.section	.text.automate,"ax",%progbits
+ 567              		.align	2
+ 568              		.global	automate
+ 569              		.code	16
+ 570              		.thumb_func
+ 571              		.type	automate, %function
+ 572              	automate:
+ 573              	.LFB37:
+ 193:.\main.c      **** 
+ 194:.\main.c      **** //**********************************************************
+ 195:.\main.c      **** //automate de fonctionnement
+ 196:.\main.c      **** void automate (void)
+ 197:.\main.c      **** {   
+ 574              		.loc 1 197 0
+ 575              		.cfi_startproc
+ 576 0000 90B5     		push	{r4, r7, lr}
+ 577              	.LCFI10:
+ 578              		.cfi_def_cfa_offset 12
+ 579              		.cfi_offset 4, -12
+ 580              		.cfi_offset 7, -8
+ 581              		.cfi_offset 14, -4
+ 582 0002 83B0     		sub	sp, sp, #12
+ 583              	.LCFI11:
+ 584              		.cfi_def_cfa_offset 24
+ 585 0004 00AF     		add	r7, sp, #0
+ 586              	.LCFI12:
+ 587              		.cfi_def_cfa_register 7
+ 198:.\main.c      ****     typedef enum 
+ 199:.\main.c      ****     {
+ 200:.\main.c      ****         commande_master=0, position_init=1, noir_X=2, visible_1=3, visible_2=4, 
+ 201:.\main.c      ****         visible_3=5, nir_1=6, nir_2=7, nir_3=8, nir_neutre=9, commande_moteur=10, SleepMode=11,
+ 202:.\main.c      ****         init_reset=12
+ 203:.\main.c      ****     } type_etat;
+ 204:.\main.c      ****     
+ 205:.\main.c      ****     type_etat etat_actuel;  //structure de l'état présent 
+ 206:.\main.c      ****     static type_etat etat_futur=commande_master;    /*structure de l'état à venir
+ 207:.\main.c      ****                                                     initialisé à commande_master*/    
+ 208:.\main.c      ****     etat_actuel=etat_futur;
+ 588              		.loc 1 208 0
+ 589 0006 FB1D     		add	r3, r7, #7
+ 590 0008 CB4A     		ldr	r2, .L105
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 15
+
+
+ 591 000a 1278     		ldrb	r2, [r2]
+ 592 000c 1A70     		strb	r2, [r3]
+ 209:.\main.c      ****     
+ 210:.\main.c      ****     //gestion des entrées
+ 211:.\main.c      ****     
+ 212:.\main.c      ****     commande_ODB=fonction_I2C();     //commande_ODB = nouvel ordre de l'ordinateur de bord
+ 593              		.loc 1 212 0
+ 594 000e FFF7FEFF 		bl	fonction_I2C
+ 595 0012 031C     		mov	r3, r0
+ 596 0014 1A1C     		mov	r2, r3
+ 597 0016 C94B     		ldr	r3, .L105+4
+ 598 0018 1A70     		strb	r2, [r3]
+ 213:.\main.c      ****     
+ 214:.\main.c      ****     switch (etat_actuel)
+ 599              		.loc 1 214 0
+ 600 001a FB1D     		add	r3, r7, #7
+ 601 001c 1B78     		ldrb	r3, [r3]
+ 602 001e 0C2B     		cmp	r3, #12
+ 603 0020 00D9     		bls	.LCB456
+ 604 0022 FDE0     		b	.L28	@long jump
+ 605              	.LCB456:
+ 606 0024 9A00     		lsl	r2, r3, #2
+ 607 0026 C64B     		ldr	r3, .L105+8
+ 608 0028 D318     		add	r3, r2, r3
+ 609 002a 1B68     		ldr	r3, [r3]
+ 610 002c 9F46     		mov	pc, r3
+ 611              		.section	.rodata
+ 612 0003 00       		.align	2
+ 613              	.L42:
+ 614 0004 2E000000 		.word	.L29
+ 615 0008 E8000000 		.word	.L30
+ 616 000c F0000000 		.word	.L31
+ 617 0010 F8000000 		.word	.L32
+ 618 0014 00010000 		.word	.L33
+ 619 0018 08010000 		.word	.L34
+ 620 001c 10010000 		.word	.L35
+ 621 0020 18010000 		.word	.L36
+ 622 0024 20010000 		.word	.L37
+ 623 0028 28010000 		.word	.L38
+ 624 002c 30010000 		.word	.L39
+ 625 0030 58010000 		.word	.L40
+ 626 0034 60010000 		.word	.L41
+ 627              		.section	.text.automate
+ 628              	.L29:
+ 215:.\main.c      ****     {
+ 216:.\main.c      ****         case commande_master:  
+ 217:.\main.c      ****             if (pblm_reset==1) etat_futur=init_reset;
+ 629              		.loc 1 217 0
+ 630 002e C54B     		ldr	r3, .L105+12
+ 631 0030 1B68     		ldr	r3, [r3]
+ 632 0032 012B     		cmp	r3, #1
+ 633 0034 03D1     		bne	.L43
+ 634              		.loc 1 217 0 is_stmt 0 discriminator 1
+ 635 0036 C04B     		ldr	r3, .L105
+ 636 0038 0C22     		mov	r2, #12
+ 637 003a 1A70     		strb	r2, [r3]
+ 218:.\main.c      ****             else if (commande_ODB==0x10) etat_futur=position_init;    //gestion de l'état futur
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 16
+
+
+ 219:.\main.c      ****             else if (commande_ODB==0x00) etat_futur=noir_X;      //en fonction de la
+ 220:.\main.c      ****             else if (commande_ODB==0x11) etat_futur=visible_1;   //commande de l'ODB
+ 221:.\main.c      ****             else if (commande_ODB==0x12) etat_futur=visible_2;
+ 222:.\main.c      ****             else if (commande_ODB==0x14) etat_futur=visible_3;
+ 223:.\main.c      ****             else if (commande_ODB==0x21) etat_futur=nir_1;
+ 224:.\main.c      ****             else if (commande_ODB==0x22) etat_futur=nir_2;
+ 225:.\main.c      ****             else if (commande_ODB==0x24) etat_futur=nir_3;
+ 226:.\main.c      ****             else if (commande_ODB==0x20) etat_futur=nir_neutre;
+ 227:.\main.c      ****             else etat_futur=SleepMode;  //mode veille
+ 228:.\main.c      ****             break;
+ 638              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 639 003c F0E0     		b	.L28
+ 640              	.L43:
+ 218:.\main.c      ****             else if (commande_ODB==0x10) etat_futur=position_init;    //gestion de l'état futur
+ 641              		.loc 1 218 0
+ 642 003e BF4B     		ldr	r3, .L105+4
+ 643 0040 1B78     		ldrb	r3, [r3]
+ 644 0042 DBB2     		uxtb	r3, r3
+ 645 0044 102B     		cmp	r3, #16
+ 646 0046 03D1     		bne	.L45
+ 218:.\main.c      ****             else if (commande_ODB==0x10) etat_futur=position_init;    //gestion de l'état futur
+ 647              		.loc 1 218 0 is_stmt 0 discriminator 1
+ 648 0048 BB4B     		ldr	r3, .L105
+ 649 004a 0122     		mov	r2, #1
+ 650 004c 1A70     		strb	r2, [r3]
+ 651              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 652 004e E7E0     		b	.L28
+ 653              	.L45:
+ 219:.\main.c      ****             else if (commande_ODB==0x00) etat_futur=noir_X;      //en fonction de la
+ 654              		.loc 1 219 0
+ 655 0050 BA4B     		ldr	r3, .L105+4
+ 656 0052 1B78     		ldrb	r3, [r3]
+ 657 0054 DBB2     		uxtb	r3, r3
+ 658 0056 002B     		cmp	r3, #0
+ 659 0058 03D1     		bne	.L46
+ 219:.\main.c      ****             else if (commande_ODB==0x00) etat_futur=noir_X;      //en fonction de la
+ 660              		.loc 1 219 0 is_stmt 0 discriminator 1
+ 661 005a B74B     		ldr	r3, .L105
+ 662 005c 0222     		mov	r2, #2
+ 663 005e 1A70     		strb	r2, [r3]
+ 664              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 665 0060 DEE0     		b	.L28
+ 666              	.L46:
+ 220:.\main.c      ****             else if (commande_ODB==0x11) etat_futur=visible_1;   //commande de l'ODB
+ 667              		.loc 1 220 0
+ 668 0062 B64B     		ldr	r3, .L105+4
+ 669 0064 1B78     		ldrb	r3, [r3]
+ 670 0066 DBB2     		uxtb	r3, r3
+ 671 0068 112B     		cmp	r3, #17
+ 672 006a 03D1     		bne	.L47
+ 220:.\main.c      ****             else if (commande_ODB==0x11) etat_futur=visible_1;   //commande de l'ODB
+ 673              		.loc 1 220 0 is_stmt 0 discriminator 1
+ 674 006c B24B     		ldr	r3, .L105
+ 675 006e 0322     		mov	r2, #3
+ 676 0070 1A70     		strb	r2, [r3]
+ 677              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 678 0072 D5E0     		b	.L28
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 17
+
+
+ 679              	.L47:
+ 221:.\main.c      ****             else if (commande_ODB==0x12) etat_futur=visible_2;
+ 680              		.loc 1 221 0
+ 681 0074 B14B     		ldr	r3, .L105+4
+ 682 0076 1B78     		ldrb	r3, [r3]
+ 683 0078 DBB2     		uxtb	r3, r3
+ 684 007a 122B     		cmp	r3, #18
+ 685 007c 03D1     		bne	.L48
+ 221:.\main.c      ****             else if (commande_ODB==0x12) etat_futur=visible_2;
+ 686              		.loc 1 221 0 is_stmt 0 discriminator 1
+ 687 007e AE4B     		ldr	r3, .L105
+ 688 0080 0422     		mov	r2, #4
+ 689 0082 1A70     		strb	r2, [r3]
+ 690              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 691 0084 CCE0     		b	.L28
+ 692              	.L48:
+ 222:.\main.c      ****             else if (commande_ODB==0x14) etat_futur=visible_3;
+ 693              		.loc 1 222 0
+ 694 0086 AD4B     		ldr	r3, .L105+4
+ 695 0088 1B78     		ldrb	r3, [r3]
+ 696 008a DBB2     		uxtb	r3, r3
+ 697 008c 142B     		cmp	r3, #20
+ 698 008e 03D1     		bne	.L49
+ 222:.\main.c      ****             else if (commande_ODB==0x14) etat_futur=visible_3;
+ 699              		.loc 1 222 0 is_stmt 0 discriminator 1
+ 700 0090 A94B     		ldr	r3, .L105
+ 701 0092 0522     		mov	r2, #5
+ 702 0094 1A70     		strb	r2, [r3]
+ 703              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 704 0096 C3E0     		b	.L28
+ 705              	.L49:
+ 223:.\main.c      ****             else if (commande_ODB==0x21) etat_futur=nir_1;
+ 706              		.loc 1 223 0
+ 707 0098 A84B     		ldr	r3, .L105+4
+ 708 009a 1B78     		ldrb	r3, [r3]
+ 709 009c DBB2     		uxtb	r3, r3
+ 710 009e 212B     		cmp	r3, #33
+ 711 00a0 03D1     		bne	.L50
+ 223:.\main.c      ****             else if (commande_ODB==0x21) etat_futur=nir_1;
+ 712              		.loc 1 223 0 is_stmt 0 discriminator 1
+ 713 00a2 A54B     		ldr	r3, .L105
+ 714 00a4 0622     		mov	r2, #6
+ 715 00a6 1A70     		strb	r2, [r3]
+ 716              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 717 00a8 BAE0     		b	.L28
+ 718              	.L50:
+ 224:.\main.c      ****             else if (commande_ODB==0x22) etat_futur=nir_2;
+ 719              		.loc 1 224 0
+ 720 00aa A44B     		ldr	r3, .L105+4
+ 721 00ac 1B78     		ldrb	r3, [r3]
+ 722 00ae DBB2     		uxtb	r3, r3
+ 723 00b0 222B     		cmp	r3, #34
+ 724 00b2 03D1     		bne	.L51
+ 224:.\main.c      ****             else if (commande_ODB==0x22) etat_futur=nir_2;
+ 725              		.loc 1 224 0 is_stmt 0 discriminator 1
+ 726 00b4 A04B     		ldr	r3, .L105
+ 727 00b6 0722     		mov	r2, #7
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 18
+
+
+ 728 00b8 1A70     		strb	r2, [r3]
+ 729              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 730 00ba B1E0     		b	.L28
+ 731              	.L51:
+ 225:.\main.c      ****             else if (commande_ODB==0x24) etat_futur=nir_3;
+ 732              		.loc 1 225 0
+ 733 00bc 9F4B     		ldr	r3, .L105+4
+ 734 00be 1B78     		ldrb	r3, [r3]
+ 735 00c0 DBB2     		uxtb	r3, r3
+ 736 00c2 242B     		cmp	r3, #36
+ 737 00c4 03D1     		bne	.L52
+ 225:.\main.c      ****             else if (commande_ODB==0x24) etat_futur=nir_3;
+ 738              		.loc 1 225 0 is_stmt 0 discriminator 1
+ 739 00c6 9C4B     		ldr	r3, .L105
+ 740 00c8 0822     		mov	r2, #8
+ 741 00ca 1A70     		strb	r2, [r3]
+ 742              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 743 00cc A8E0     		b	.L28
+ 744              	.L52:
+ 226:.\main.c      ****             else if (commande_ODB==0x20) etat_futur=nir_neutre;
+ 745              		.loc 1 226 0
+ 746 00ce 9B4B     		ldr	r3, .L105+4
+ 747 00d0 1B78     		ldrb	r3, [r3]
+ 748 00d2 DBB2     		uxtb	r3, r3
+ 749 00d4 202B     		cmp	r3, #32
+ 750 00d6 03D1     		bne	.L53
+ 226:.\main.c      ****             else if (commande_ODB==0x20) etat_futur=nir_neutre;
+ 751              		.loc 1 226 0 is_stmt 0 discriminator 1
+ 752 00d8 974B     		ldr	r3, .L105
+ 753 00da 0922     		mov	r2, #9
+ 754 00dc 1A70     		strb	r2, [r3]
+ 755              		.loc 1 228 0 is_stmt 1 discriminator 1
+ 756 00de 9FE0     		b	.L28
+ 757              	.L53:
+ 227:.\main.c      ****             else etat_futur=SleepMode;  //mode veille
+ 758              		.loc 1 227 0
+ 759 00e0 954B     		ldr	r3, .L105
+ 760 00e2 0B22     		mov	r2, #11
+ 761 00e4 1A70     		strb	r2, [r3]
+ 762              		.loc 1 228 0
+ 763 00e6 9BE0     		b	.L28
+ 764              	.L30:
+ 229:.\main.c      ****             
+ 230:.\main.c      ****         case position_init:  
+ 231:.\main.c      ****             etat_futur=commande_moteur;
+ 765              		.loc 1 231 0
+ 766 00e8 934B     		ldr	r3, .L105
+ 767 00ea 0A22     		mov	r2, #10
+ 768 00ec 1A70     		strb	r2, [r3]
+ 232:.\main.c      ****             break;
+ 769              		.loc 1 232 0
+ 770 00ee 97E0     		b	.L28
+ 771              	.L31:
+ 233:.\main.c      ****             
+ 234:.\main.c      ****         case noir_X:
+ 235:.\main.c      ****             etat_futur=commande_moteur;
+ 772              		.loc 1 235 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 19
+
+
+ 773 00f0 914B     		ldr	r3, .L105
+ 774 00f2 0A22     		mov	r2, #10
+ 775 00f4 1A70     		strb	r2, [r3]
+ 236:.\main.c      ****             break;
+ 776              		.loc 1 236 0
+ 777 00f6 93E0     		b	.L28
+ 778              	.L32:
+ 237:.\main.c      ****             
+ 238:.\main.c      ****         case visible_1:
+ 239:.\main.c      ****             etat_futur=commande_moteur;
+ 779              		.loc 1 239 0
+ 780 00f8 8F4B     		ldr	r3, .L105
+ 781 00fa 0A22     		mov	r2, #10
+ 782 00fc 1A70     		strb	r2, [r3]
+ 240:.\main.c      ****             break;
+ 783              		.loc 1 240 0
+ 784 00fe 8FE0     		b	.L28
+ 785              	.L33:
+ 241:.\main.c      ****             
+ 242:.\main.c      ****         case visible_2:
+ 243:.\main.c      ****             etat_futur=commande_moteur;
+ 786              		.loc 1 243 0
+ 787 0100 8D4B     		ldr	r3, .L105
+ 788 0102 0A22     		mov	r2, #10
+ 789 0104 1A70     		strb	r2, [r3]
+ 244:.\main.c      ****             break;
+ 790              		.loc 1 244 0
+ 791 0106 8BE0     		b	.L28
+ 792              	.L34:
+ 245:.\main.c      ****             
+ 246:.\main.c      ****         case visible_3:
+ 247:.\main.c      ****             etat_futur=commande_moteur;
+ 793              		.loc 1 247 0
+ 794 0108 8B4B     		ldr	r3, .L105
+ 795 010a 0A22     		mov	r2, #10
+ 796 010c 1A70     		strb	r2, [r3]
+ 248:.\main.c      ****             break;
+ 797              		.loc 1 248 0
+ 798 010e 87E0     		b	.L28
+ 799              	.L35:
+ 249:.\main.c      ****             
+ 250:.\main.c      ****         case nir_1:
+ 251:.\main.c      ****             etat_futur=commande_moteur;
+ 800              		.loc 1 251 0
+ 801 0110 894B     		ldr	r3, .L105
+ 802 0112 0A22     		mov	r2, #10
+ 803 0114 1A70     		strb	r2, [r3]
+ 252:.\main.c      ****             break;
+ 804              		.loc 1 252 0
+ 805 0116 83E0     		b	.L28
+ 806              	.L36:
+ 253:.\main.c      ****             
+ 254:.\main.c      ****         case nir_2:
+ 255:.\main.c      ****             etat_futur=commande_moteur;
+ 807              		.loc 1 255 0
+ 808 0118 874B     		ldr	r3, .L105
+ 809 011a 0A22     		mov	r2, #10
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 20
+
+
+ 810 011c 1A70     		strb	r2, [r3]
+ 256:.\main.c      ****             break;
+ 811              		.loc 1 256 0
+ 812 011e 7FE0     		b	.L28
+ 813              	.L37:
+ 257:.\main.c      ****             
+ 258:.\main.c      ****         case nir_3:
+ 259:.\main.c      ****             etat_futur=commande_moteur;
+ 814              		.loc 1 259 0
+ 815 0120 854B     		ldr	r3, .L105
+ 816 0122 0A22     		mov	r2, #10
+ 817 0124 1A70     		strb	r2, [r3]
+ 260:.\main.c      ****             break;
+ 818              		.loc 1 260 0
+ 819 0126 7BE0     		b	.L28
+ 820              	.L38:
+ 261:.\main.c      ****             
+ 262:.\main.c      ****         case nir_neutre:
+ 263:.\main.c      ****             etat_futur=commande_moteur;
+ 821              		.loc 1 263 0
+ 822 0128 834B     		ldr	r3, .L105
+ 823 012a 0A22     		mov	r2, #10
+ 824 012c 1A70     		strb	r2, [r3]
+ 264:.\main.c      ****             break;
+ 825              		.loc 1 264 0
+ 826 012e 77E0     		b	.L28
+ 827              	.L39:
+ 265:.\main.c      ****             
+ 266:.\main.c      ****         case commande_moteur:
+ 267:.\main.c      ****             if (CAS_ACTUEL==CAS_ARRET) 
+ 828              		.loc 1 267 0
+ 829 0130 854B     		ldr	r3, .L105+16
+ 830 0132 1B68     		ldr	r3, [r3]
+ 831 0134 002B     		cmp	r3, #0
+ 832 0136 0BD1     		bne	.L54
+ 268:.\main.c      ****             {
+ 269:.\main.c      ****                 etat_futur=SleepMode;
+ 833              		.loc 1 269 0
+ 834 0138 7F4B     		ldr	r3, .L105
+ 835 013a 0B22     		mov	r2, #11
+ 836 013c 1A70     		strb	r2, [r3]
+ 270:.\main.c      ****                 if (pblm_reset==1) etat_futur=init_reset;
+ 837              		.loc 1 270 0
+ 838 013e 814B     		ldr	r3, .L105+12
+ 839 0140 1B68     		ldr	r3, [r3]
+ 840 0142 012B     		cmp	r3, #1
+ 841 0144 00D0     		beq	.LCB667
+ 842 0146 68E0     		b	.L99	@long jump
+ 843              	.LCB667:
+ 844              		.loc 1 270 0 is_stmt 0 discriminator 1
+ 845 0148 7B4B     		ldr	r3, .L105
+ 846 014a 0C22     		mov	r2, #12
+ 847 014c 1A70     		strb	r2, [r3]
+ 271:.\main.c      ****             }            
+ 272:.\main.c      ****             else etat_futur=commande_moteur;
+ 273:.\main.c      ****             break;
+ 848              		.loc 1 273 0 is_stmt 1 discriminator 1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 21
+
+
+ 849 014e 64E0     		b	.L99
+ 850              	.L54:
+ 272:.\main.c      ****             else etat_futur=commande_moteur;
+ 851              		.loc 1 272 0
+ 852 0150 794B     		ldr	r3, .L105
+ 853 0152 0A22     		mov	r2, #10
+ 854 0154 1A70     		strb	r2, [r3]
+ 855              		.loc 1 273 0
+ 856 0156 60E0     		b	.L99
+ 857              	.L40:
+ 274:.\main.c      ****             
+ 275:.\main.c      ****         case SleepMode:
+ 276:.\main.c      ****             etat_futur=commande_master;
+ 858              		.loc 1 276 0
+ 859 0158 774B     		ldr	r3, .L105
+ 860 015a 0022     		mov	r2, #0
+ 861 015c 1A70     		strb	r2, [r3]
+ 277:.\main.c      ****             break;
+ 862              		.loc 1 277 0
+ 863 015e 5FE0     		b	.L28
+ 864              	.L41:
+ 278:.\main.c      ****             
+ 279:.\main.c      ****         case init_reset:
+ 280:.\main.c      ****             etat_futur=position_init;
+ 865              		.loc 1 280 0
+ 866 0160 754B     		ldr	r3, .L105
+ 867 0162 0122     		mov	r2, #1
+ 868 0164 1A70     		strb	r2, [r3]
+ 281:.\main.c      ****             if (hall_Read()==0)
+ 869              		.loc 1 281 0
+ 870 0166 FFF7FEFF 		bl	hall_Read
+ 871 016a 031C     		mov	r3, r0
+ 872 016c 002B     		cmp	r3, #0
+ 873 016e 56D1     		bne	.L100
+ 282:.\main.c      ****             {
+ 283:.\main.c      ****                 if (commande_avant_reset==0x10) etat_futur=position_init;    //gestion de l'état f
+ 874              		.loc 1 283 0
+ 875 0170 764B     		ldr	r3, .L105+20
+ 876 0172 1B78     		ldrb	r3, [r3]
+ 877 0174 DBB2     		uxtb	r3, r3
+ 878 0176 102B     		cmp	r3, #16
+ 879 0178 03D1     		bne	.L57
+ 880              		.loc 1 283 0 is_stmt 0 discriminator 1
+ 881 017a 6F4B     		ldr	r3, .L105
+ 882 017c 0122     		mov	r2, #1
+ 883 017e 1A70     		strb	r2, [r3]
+ 284:.\main.c      ****                 else if (commande_avant_reset==0x00) etat_futur=noir_X;      //en fonction de la
+ 285:.\main.c      ****                 else if (commande_avant_reset==0x11) etat_futur=visible_1;   //commande de l'ODB mi
+ 286:.\main.c      ****                 else if (commande_avant_reset==0x12) etat_futur=visible_2;   //mémoire
+ 287:.\main.c      ****                 else if (commande_avant_reset==0x14) etat_futur=visible_3;
+ 288:.\main.c      ****                 else if (commande_avant_reset==0x21) etat_futur=nir_1;
+ 289:.\main.c      ****                 else if (commande_avant_reset==0x22) etat_futur=nir_2;
+ 290:.\main.c      ****                 else if (commande_avant_reset==0x24) etat_futur=nir_3;
+ 291:.\main.c      ****                 else if (commande_avant_reset==0x20) etat_futur=nir_neutre;
+ 292:.\main.c      ****                 else etat_futur=SleepMode;
+ 293:.\main.c      ****             }
+ 294:.\main.c      ****             break;
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 22
+
+
+ 884              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 885 0180 4DE0     		b	.L100
+ 886              	.L57:
+ 284:.\main.c      ****                 else if (commande_avant_reset==0x00) etat_futur=noir_X;      //en fonction de la
+ 887              		.loc 1 284 0
+ 888 0182 724B     		ldr	r3, .L105+20
+ 889 0184 1B78     		ldrb	r3, [r3]
+ 890 0186 DBB2     		uxtb	r3, r3
+ 891 0188 002B     		cmp	r3, #0
+ 892 018a 03D1     		bne	.L58
+ 284:.\main.c      ****                 else if (commande_avant_reset==0x00) etat_futur=noir_X;      //en fonction de la
+ 893              		.loc 1 284 0 is_stmt 0 discriminator 1
+ 894 018c 6A4B     		ldr	r3, .L105
+ 895 018e 0222     		mov	r2, #2
+ 896 0190 1A70     		strb	r2, [r3]
+ 897              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 898 0192 44E0     		b	.L100
+ 899              	.L58:
+ 285:.\main.c      ****                 else if (commande_avant_reset==0x11) etat_futur=visible_1;   //commande de l'ODB mi
+ 900              		.loc 1 285 0
+ 901 0194 6D4B     		ldr	r3, .L105+20
+ 902 0196 1B78     		ldrb	r3, [r3]
+ 903 0198 DBB2     		uxtb	r3, r3
+ 904 019a 112B     		cmp	r3, #17
+ 905 019c 03D1     		bne	.L59
+ 285:.\main.c      ****                 else if (commande_avant_reset==0x11) etat_futur=visible_1;   //commande de l'ODB mi
+ 906              		.loc 1 285 0 is_stmt 0 discriminator 1
+ 907 019e 664B     		ldr	r3, .L105
+ 908 01a0 0322     		mov	r2, #3
+ 909 01a2 1A70     		strb	r2, [r3]
+ 910              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 911 01a4 3BE0     		b	.L100
+ 912              	.L59:
+ 286:.\main.c      ****                 else if (commande_avant_reset==0x12) etat_futur=visible_2;   //mémoire
+ 913              		.loc 1 286 0
+ 914 01a6 694B     		ldr	r3, .L105+20
+ 915 01a8 1B78     		ldrb	r3, [r3]
+ 916 01aa DBB2     		uxtb	r3, r3
+ 917 01ac 122B     		cmp	r3, #18
+ 918 01ae 03D1     		bne	.L60
+ 286:.\main.c      ****                 else if (commande_avant_reset==0x12) etat_futur=visible_2;   //mémoire
+ 919              		.loc 1 286 0 is_stmt 0 discriminator 1
+ 920 01b0 614B     		ldr	r3, .L105
+ 921 01b2 0422     		mov	r2, #4
+ 922 01b4 1A70     		strb	r2, [r3]
+ 923              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 924 01b6 32E0     		b	.L100
+ 925              	.L60:
+ 287:.\main.c      ****                 else if (commande_avant_reset==0x14) etat_futur=visible_3;
+ 926              		.loc 1 287 0
+ 927 01b8 644B     		ldr	r3, .L105+20
+ 928 01ba 1B78     		ldrb	r3, [r3]
+ 929 01bc DBB2     		uxtb	r3, r3
+ 930 01be 142B     		cmp	r3, #20
+ 931 01c0 03D1     		bne	.L61
+ 287:.\main.c      ****                 else if (commande_avant_reset==0x14) etat_futur=visible_3;
+ 932              		.loc 1 287 0 is_stmt 0 discriminator 1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 23
+
+
+ 933 01c2 5D4B     		ldr	r3, .L105
+ 934 01c4 0522     		mov	r2, #5
+ 935 01c6 1A70     		strb	r2, [r3]
+ 936              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 937 01c8 29E0     		b	.L100
+ 938              	.L61:
+ 288:.\main.c      ****                 else if (commande_avant_reset==0x21) etat_futur=nir_1;
+ 939              		.loc 1 288 0
+ 940 01ca 604B     		ldr	r3, .L105+20
+ 941 01cc 1B78     		ldrb	r3, [r3]
+ 942 01ce DBB2     		uxtb	r3, r3
+ 943 01d0 212B     		cmp	r3, #33
+ 944 01d2 03D1     		bne	.L62
+ 288:.\main.c      ****                 else if (commande_avant_reset==0x21) etat_futur=nir_1;
+ 945              		.loc 1 288 0 is_stmt 0 discriminator 1
+ 946 01d4 584B     		ldr	r3, .L105
+ 947 01d6 0622     		mov	r2, #6
+ 948 01d8 1A70     		strb	r2, [r3]
+ 949              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 950 01da 20E0     		b	.L100
+ 951              	.L62:
+ 289:.\main.c      ****                 else if (commande_avant_reset==0x22) etat_futur=nir_2;
+ 952              		.loc 1 289 0
+ 953 01dc 5B4B     		ldr	r3, .L105+20
+ 954 01de 1B78     		ldrb	r3, [r3]
+ 955 01e0 DBB2     		uxtb	r3, r3
+ 956 01e2 222B     		cmp	r3, #34
+ 957 01e4 03D1     		bne	.L63
+ 289:.\main.c      ****                 else if (commande_avant_reset==0x22) etat_futur=nir_2;
+ 958              		.loc 1 289 0 is_stmt 0 discriminator 1
+ 959 01e6 544B     		ldr	r3, .L105
+ 960 01e8 0722     		mov	r2, #7
+ 961 01ea 1A70     		strb	r2, [r3]
+ 962              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 963 01ec 17E0     		b	.L100
+ 964              	.L63:
+ 290:.\main.c      ****                 else if (commande_avant_reset==0x24) etat_futur=nir_3;
+ 965              		.loc 1 290 0
+ 966 01ee 574B     		ldr	r3, .L105+20
+ 967 01f0 1B78     		ldrb	r3, [r3]
+ 968 01f2 DBB2     		uxtb	r3, r3
+ 969 01f4 242B     		cmp	r3, #36
+ 970 01f6 03D1     		bne	.L64
+ 290:.\main.c      ****                 else if (commande_avant_reset==0x24) etat_futur=nir_3;
+ 971              		.loc 1 290 0 is_stmt 0 discriminator 1
+ 972 01f8 4F4B     		ldr	r3, .L105
+ 973 01fa 0822     		mov	r2, #8
+ 974 01fc 1A70     		strb	r2, [r3]
+ 975              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 976 01fe 0EE0     		b	.L100
+ 977              	.L64:
+ 291:.\main.c      ****                 else if (commande_avant_reset==0x20) etat_futur=nir_neutre;
+ 978              		.loc 1 291 0
+ 979 0200 524B     		ldr	r3, .L105+20
+ 980 0202 1B78     		ldrb	r3, [r3]
+ 981 0204 DBB2     		uxtb	r3, r3
+ 982 0206 202B     		cmp	r3, #32
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 24
+
+
+ 983 0208 03D1     		bne	.L65
+ 291:.\main.c      ****                 else if (commande_avant_reset==0x20) etat_futur=nir_neutre;
+ 984              		.loc 1 291 0 is_stmt 0 discriminator 1
+ 985 020a 4B4B     		ldr	r3, .L105
+ 986 020c 0922     		mov	r2, #9
+ 987 020e 1A70     		strb	r2, [r3]
+ 988              		.loc 1 294 0 is_stmt 1 discriminator 1
+ 989 0210 05E0     		b	.L100
+ 990              	.L65:
+ 292:.\main.c      ****                 else etat_futur=SleepMode;
+ 991              		.loc 1 292 0
+ 992 0212 494B     		ldr	r3, .L105
+ 993 0214 0B22     		mov	r2, #11
+ 994 0216 1A70     		strb	r2, [r3]
+ 995              		.loc 1 294 0
+ 996 0218 01E0     		b	.L100
+ 997              	.L99:
+ 273:.\main.c      ****             break;
+ 998              		.loc 1 273 0
+ 999 021a C046     		mov	r8, r8
+ 1000 021c 00E0     		b	.L28
+ 1001              	.L100:
+ 1002              		.loc 1 294 0
+ 1003 021e C046     		mov	r8, r8
+ 1004              	.L28:
+ 295:.\main.c      ****     }
+ 296:.\main.c      ****     
+ 297:.\main.c      ****     //gestion des sorties
+ 298:.\main.c      ****     switch (etat_actuel)
+ 1005              		.loc 1 298 0
+ 1006 0220 FB1D     		add	r3, r7, #7
+ 1007 0222 1B78     		ldrb	r3, [r3]
+ 1008 0224 0C2B     		cmp	r3, #12
+ 1009 0226 00D9     		bls	.LCB822
+ 1010 0228 5EE1     		b	.L66	@long jump
+ 1011              	.LCB822:
+ 1012 022a 9A00     		lsl	r2, r3, #2
+ 1013 022c 484B     		ldr	r3, .L105+24
+ 1014 022e D318     		add	r3, r2, r3
+ 1015 0230 1B68     		ldr	r3, [r3]
+ 1016 0232 9F46     		mov	pc, r3
+ 1017              		.section	.rodata
+ 1018              		.align	2
+ 1019              	.L80:
+ 1020 0038 DA040000 		.word	.L101
+ 1021 003c 34020000 		.word	.L68
+ 1022 0040 96020000 		.word	.L69
+ 1023 0044 2A030000 		.word	.L70
+ 1024 0048 74030000 		.word	.L71
+ 1025 004c 80030000 		.word	.L72
+ 1026 0050 8C030000 		.word	.L73
+ 1027 0054 98030000 		.word	.L74
+ 1028 0058 A4030000 		.word	.L75
+ 1029 005c B0030000 		.word	.L76
+ 1030 0060 BC030000 		.word	.L77
+ 1031 0064 A0040000 		.word	.L78
+ 1032 0068 C8040000 		.word	.L79
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 25
+
+
+ 1033              		.section	.text.automate
+ 1034              	.L68:
+ 299:.\main.c      ****     { 
+ 300:.\main.c      ****         case commande_master:   
+ 301:.\main.c      ****             break;
+ 302:.\main.c      ****         
+ 303:.\main.c      ****         case position_init:
+ 304:.\main.c      ****             if (hall_Read()==0) 
+ 1035              		.loc 1 304 0
+ 1036 0234 FFF7FEFF 		bl	hall_Read
+ 1037 0238 031C     		mov	r3, r0
+ 1038 023a 002B     		cmp	r3, #0
+ 1039 023c 06D1     		bne	.L81
+ 305:.\main.c      ****             {
+ 306:.\main.c      ****                 registre=0x01;         //enable=0 ; le moteur reste à l'arrêt
+ 1040              		.loc 1 306 0
+ 1041 023e 454B     		ldr	r3, .L105+28
+ 1042 0240 0122     		mov	r2, #1
+ 1043 0242 1A70     		strb	r2, [r3]
+ 307:.\main.c      ****                 rBuffer[0]=0x10;
+ 1044              		.loc 1 307 0
+ 1045 0244 444B     		ldr	r3, .L105+32
+ 1046 0246 1022     		mov	r2, #16
+ 1047 0248 1A70     		strb	r2, [r3]
+ 1048 024a 15E0     		b	.L82
+ 1049              	.L81:
+ 308:.\main.c      ****             }
+ 309:.\main.c      ****             else 
+ 310:.\main.c      ****             {
+ 311:.\main.c      ****                 if (POSITION_ACTUELLE < 0) registre=0x02;  //enable=1 démarrage moteur ; DIR=1
+ 1050              		.loc 1 311 0
+ 1051 024c 434B     		ldr	r3, .L105+36
+ 1052 024e 1B78     		ldrb	r3, [r3]
+ 1053 0250 DBB2     		uxtb	r3, r3
+ 1054 0252 5BB2     		sxtb	r3, r3
+ 1055 0254 002B     		cmp	r3, #0
+ 1056 0256 03DA     		bge	.L83
+ 1057              		.loc 1 311 0 is_stmt 0 discriminator 1
+ 1058 0258 3E4B     		ldr	r3, .L105+28
+ 1059 025a 0222     		mov	r2, #2
+ 1060 025c 1A70     		strb	r2, [r3]
+ 1061 025e 02E0     		b	.L84
+ 1062              	.L83:
+ 312:.\main.c      ****                 else registre=0x03;                        //enable=1 ; DIR=0
+ 1063              		.loc 1 312 0 is_stmt 1
+ 1064 0260 3C4B     		ldr	r3, .L105+28
+ 1065 0262 0322     		mov	r2, #3
+ 1066 0264 1A70     		strb	r2, [r3]
+ 1067              	.L84:
+ 313:.\main.c      ****                 rBuffer[0]=0xEE;
+ 1068              		.loc 1 313 0
+ 1069 0266 3C4B     		ldr	r3, .L105+32
+ 1070 0268 EE22     		mov	r2, #238
+ 1071 026a 1A70     		strb	r2, [r3]
+ 314:.\main.c      ****                 POSITION_SUIVANTE=0;                       
+ 1072              		.loc 1 314 0
+ 1073 026c 3C4B     		ldr	r3, .L105+40
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 26
+
+
+ 1074 026e 0022     		mov	r2, #0
+ 1075 0270 1A70     		strb	r2, [r3]
+ 315:.\main.c      ****                 CAS_ACTUEL=CAS_POSITION_INITIALE;          //moteur tourne jusqu'à la position ini
+ 1076              		.loc 1 315 0
+ 1077 0272 354B     		ldr	r3, .L105+16
+ 1078 0274 0122     		mov	r2, #1
+ 1079 0276 1A60     		str	r2, [r3]
+ 1080              	.L82:
+ 316:.\main.c      ****             }
+ 317:.\main.c      ****             
+ 318:.\main.c      ****             array[1]=rBuffer[0];                       //mise en mémoire de la position actuelle
+ 1081              		.loc 1 318 0
+ 1082 0278 374B     		ldr	r3, .L105+32
+ 1083 027a 1A78     		ldrb	r2, [r3]
+ 1084 027c 394B     		ldr	r3, .L105+44
+ 1085 027e 5A70     		strb	r2, [r3, #1]
+ 319:.\main.c      ****             status = EEPROM_Write(array,eepromArray,3u);
+ 1086              		.loc 1 319 0
+ 1087 0280 384A     		ldr	r2, .L105+44
+ 1088 0282 394B     		ldr	r3, .L105+48
+ 1089 0284 101C     		mov	r0, r2
+ 1090 0286 191C     		mov	r1, r3
+ 1091 0288 0322     		mov	r2, #3
+ 1092 028a FFF7FEFF 		bl	EEPROM_Write
+ 1093 028e 021C     		mov	r2, r0
+ 1094 0290 364B     		ldr	r3, .L105+52
+ 1095 0292 1A60     		str	r2, [r3]
+ 320:.\main.c      ****             break;
+ 1096              		.loc 1 320 0
+ 1097 0294 28E1     		b	.L66
+ 1098              	.L69:
+ 321:.\main.c      ****         
+ 322:.\main.c      ****         case noir_X:
+ 323:.\main.c      ****             NBR_CHANGEMENTS_POSITION = 0;   //cas où les roues sont déjà la position   noir_X
+ 1099              		.loc 1 323 0
+ 1100 0296 364B     		ldr	r3, .L105+56
+ 1101 0298 0022     		mov	r2, #0
+ 1102 029a 1A70     		strb	r2, [r3]
+ 324:.\main.c      **** 
+ 325:.\main.c      ****             if((POSITION_ACTUELLE+1)%3==-1 || (POSITION_ACTUELLE+1)%3==2) 
+ 1103              		.loc 1 325 0
+ 1104 029c 2F4B     		ldr	r3, .L105+36
+ 1105 029e 1B78     		ldrb	r3, [r3]
+ 1106 02a0 DBB2     		uxtb	r3, r3
+ 1107 02a2 5BB2     		sxtb	r3, r3
+ 1108 02a4 0133     		add	r3, r3, #1
+ 1109 02a6 181C     		mov	r0, r3
+ 1110 02a8 0321     		mov	r1, #3
+ 1111 02aa FFF7FEFF 		bl	__aeabi_idivmod
+ 1112 02ae 0B1C     		mov	r3, r1
+ 1113 02b0 0133     		add	r3, r3, #1
+ 1114 02b2 0BD0     		beq	.L85
+ 1115              		.loc 1 325 0 is_stmt 0 discriminator 1
+ 1116 02b4 294B     		ldr	r3, .L105+36
+ 1117 02b6 1B78     		ldrb	r3, [r3]
+ 1118 02b8 DBB2     		uxtb	r3, r3
+ 1119 02ba 5BB2     		sxtb	r3, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 27
+
+
+ 1120 02bc 0133     		add	r3, r3, #1
+ 1121 02be 181C     		mov	r0, r3
+ 1122 02c0 0321     		mov	r1, #3
+ 1123 02c2 FFF7FEFF 		bl	__aeabi_idivmod
+ 1124 02c6 0B1C     		mov	r3, r1
+ 1125 02c8 022B     		cmp	r3, #2
+ 1126 02ca 03D1     		bne	.L86
+ 1127              	.L85:
+ 326:.\main.c      ****             {
+ 327:.\main.c      ****                 NBR_CHANGEMENTS_POSITION=-1; //calcul du nombre de changements de   position minima
+ 1128              		.loc 1 327 0 is_stmt 1
+ 1129 02cc 284B     		ldr	r3, .L105+56
+ 1130 02ce FF22     		mov	r2, #255
+ 1131 02d0 1A70     		strb	r2, [r3]
+ 1132 02d2 1AE0     		b	.L87
+ 1133              	.L86:
+ 328:.\main.c      **** 
+ 329:.\main.c      ****             }
+ 330:.\main.c      ****             else if ((POSITION_ACTUELLE+1)%3==-2 || (POSITION_ACTUELLE+1)%3==1) 
+ 1134              		.loc 1 330 0
+ 1135 02d4 214B     		ldr	r3, .L105+36
+ 1136 02d6 1B78     		ldrb	r3, [r3]
+ 1137 02d8 DBB2     		uxtb	r3, r3
+ 1138 02da 5BB2     		sxtb	r3, r3
+ 1139 02dc 0133     		add	r3, r3, #1
+ 1140 02de 181C     		mov	r0, r3
+ 1141 02e0 0321     		mov	r1, #3
+ 1142 02e2 FFF7FEFF 		bl	__aeabi_idivmod
+ 1143 02e6 0B1C     		mov	r3, r1
+ 1144 02e8 0233     		add	r3, r3, #2
+ 1145 02ea 0BD0     		beq	.L88
+ 1146              		.loc 1 330 0 is_stmt 0 discriminator 1
+ 1147 02ec 1B4B     		ldr	r3, .L105+36
+ 1148 02ee 1B78     		ldrb	r3, [r3]
+ 1149 02f0 DBB2     		uxtb	r3, r3
+ 1150 02f2 5BB2     		sxtb	r3, r3
+ 1151 02f4 0133     		add	r3, r3, #1
+ 1152 02f6 181C     		mov	r0, r3
+ 1153 02f8 0321     		mov	r1, #3
+ 1154 02fa FFF7FEFF 		bl	__aeabi_idivmod
+ 1155 02fe 0B1C     		mov	r3, r1
+ 1156 0300 012B     		cmp	r3, #1
+ 1157 0302 02D1     		bne	.L87
+ 1158              	.L88:
+ 331:.\main.c      ****             {
+ 332:.\main.c      ****                 NBR_CHANGEMENTS_POSITION=1; 
+ 1159              		.loc 1 332 0 is_stmt 1
+ 1160 0304 1A4B     		ldr	r3, .L105+56
+ 1161 0306 0122     		mov	r2, #1
+ 1162 0308 1A70     		strb	r2, [r3]
+ 1163              	.L87:
+ 333:.\main.c      ****             }
+ 334:.\main.c      ****             POSITION_SUIVANTE=POSITION_ACTUELLE+NBR_CHANGEMENTS_POSITION;
+ 1164              		.loc 1 334 0
+ 1165 030a 144B     		ldr	r3, .L105+36
+ 1166 030c 1B78     		ldrb	r3, [r3]
+ 1167 030e DBB2     		uxtb	r3, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 28
+
+
+ 1168 0310 DAB2     		uxtb	r2, r3
+ 1169 0312 174B     		ldr	r3, .L105+56
+ 1170 0314 1B78     		ldrb	r3, [r3]
+ 1171 0316 DBB2     		uxtb	r3, r3
+ 1172 0318 DBB2     		uxtb	r3, r3
+ 1173 031a D318     		add	r3, r2, r3
+ 1174 031c DBB2     		uxtb	r3, r3
+ 1175 031e DAB2     		uxtb	r2, r3
+ 1176 0320 0F4B     		ldr	r3, .L105+40
+ 1177 0322 1A70     		strb	r2, [r3]
+ 335:.\main.c      ****             Changer_position();
+ 1178              		.loc 1 335 0
+ 1179 0324 FFF7FEFF 		bl	Changer_position
+ 336:.\main.c      ****             break;
+ 1180              		.loc 1 336 0
+ 1181 0328 DEE0     		b	.L66
+ 1182              	.L70:
+ 337:.\main.c      ****             
+ 338:.\main.c      ****         case visible_1:
+ 339:.\main.c      ****             POSITION_SUIVANTE=-3;
+ 1183              		.loc 1 339 0
+ 1184 032a 0D4B     		ldr	r3, .L105+40
+ 1185 032c FD22     		mov	r2, #253
+ 1186 032e 1A70     		strb	r2, [r3]
+ 340:.\main.c      ****             Changer_position();   
+ 1187              		.loc 1 340 0
+ 1188 0330 FFF7FEFF 		bl	Changer_position
+ 341:.\main.c      ****             break;
+ 1189              		.loc 1 341 0
+ 1190 0334 D8E0     		b	.L66
+ 1191              	.L106:
+ 1192 0336 C046     		.align	2
+ 1193              	.L105:
+ 1194 0338 18000000 		.word	etat_futur.5140
+ 1195 033c 00000000 		.word	commande_ODB
+ 1196 0340 04000000 		.word	.L42
+ 1197 0344 00000000 		.word	pblm_reset
+ 1198 0348 00000000 		.word	CAS_ACTUEL
+ 1199 034c 00000000 		.word	commande_avant_reset
+ 1200 0350 38000000 		.word	.L80
+ 1201 0354 00000000 		.word	registre
+ 1202 0358 00000000 		.word	rBuffer
+ 1203 035c 00000000 		.word	POSITION_ACTUELLE
+ 1204 0360 00000000 		.word	POSITION_SUIVANTE
+ 1205 0364 00000000 		.word	array
+ 1206 0368 00000000 		.word	eepromArray
+ 1207 036c 00000000 		.word	status
+ 1208 0370 00000000 		.word	NBR_CHANGEMENTS_POSITION
+ 1209              	.L71:
+ 342:.\main.c      **** 
+ 343:.\main.c      ****         case visible_2:
+ 344:.\main.c      ****             POSITION_SUIVANTE=6;
+ 1210              		.loc 1 344 0
+ 1211 0374 634B     		ldr	r3, .L107
+ 1212 0376 0622     		mov	r2, #6
+ 1213 0378 1A70     		strb	r2, [r3]
+ 345:.\main.c      ****             Changer_position();
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 29
+
+
+ 1214              		.loc 1 345 0
+ 1215 037a FFF7FEFF 		bl	Changer_position
+ 346:.\main.c      ****             break;
+ 1216              		.loc 1 346 0
+ 1217 037e B3E0     		b	.L66
+ 1218              	.L72:
+ 347:.\main.c      ****             
+ 348:.\main.c      ****         case visible_3:
+ 349:.\main.c      ****             POSITION_SUIVANTE=3;
+ 1219              		.loc 1 349 0
+ 1220 0380 604B     		ldr	r3, .L107
+ 1221 0382 0322     		mov	r2, #3
+ 1222 0384 1A70     		strb	r2, [r3]
+ 350:.\main.c      ****             Changer_position();
+ 1223              		.loc 1 350 0
+ 1224 0386 FFF7FEFF 		bl	Changer_position
+ 351:.\main.c      ****             break;
+ 1225              		.loc 1 351 0
+ 1226 038a ADE0     		b	.L66
+ 1227              	.L73:
+ 352:.\main.c      ****             
+ 353:.\main.c      ****         case nir_1:
+ 354:.\main.c      ****             POSITION_SUIVANTE=5;
+ 1228              		.loc 1 354 0
+ 1229 038c 5D4B     		ldr	r3, .L107
+ 1230 038e 0522     		mov	r2, #5
+ 1231 0390 1A70     		strb	r2, [r3]
+ 355:.\main.c      ****             Changer_position();
+ 1232              		.loc 1 355 0
+ 1233 0392 FFF7FEFF 		bl	Changer_position
+ 356:.\main.c      ****             break;
+ 1234              		.loc 1 356 0
+ 1235 0396 A7E0     		b	.L66
+ 1236              	.L74:
+ 357:.\main.c      ****             
+ 358:.\main.c      ****         case nir_2:
+ 359:.\main.c      ****             POSITION_SUIVANTE=2;
+ 1237              		.loc 1 359 0
+ 1238 0398 5A4B     		ldr	r3, .L107
+ 1239 039a 0222     		mov	r2, #2
+ 1240 039c 1A70     		strb	r2, [r3]
+ 360:.\main.c      ****             Changer_position();
+ 1241              		.loc 1 360 0
+ 1242 039e FFF7FEFF 		bl	Changer_position
+ 361:.\main.c      ****             break;
+ 1243              		.loc 1 361 0
+ 1244 03a2 A1E0     		b	.L66
+ 1245              	.L75:
+ 362:.\main.c      ****             
+ 363:.\main.c      ****         case nir_3:
+ 364:.\main.c      ****             POSITION_SUIVANTE=-1;
+ 1246              		.loc 1 364 0
+ 1247 03a4 574B     		ldr	r3, .L107
+ 1248 03a6 FF22     		mov	r2, #255
+ 1249 03a8 1A70     		strb	r2, [r3]
+ 365:.\main.c      ****             Changer_position();
+ 1250              		.loc 1 365 0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 30
+
+
+ 1251 03aa FFF7FEFF 		bl	Changer_position
+ 366:.\main.c      ****             break;
+ 1252              		.loc 1 366 0
+ 1253 03ae 9BE0     		b	.L66
+ 1254              	.L76:
+ 367:.\main.c      ****             
+ 368:.\main.c      ****         case nir_neutre:
+ 369:.\main.c      ****             POSITION_SUIVANTE=-4;
+ 1255              		.loc 1 369 0
+ 1256 03b0 544B     		ldr	r3, .L107
+ 1257 03b2 FC22     		mov	r2, #252
+ 1258 03b4 1A70     		strb	r2, [r3]
+ 370:.\main.c      ****             Changer_position();
+ 1259              		.loc 1 370 0
+ 1260 03b6 FFF7FEFF 		bl	Changer_position
+ 371:.\main.c      ****             break;
+ 1261              		.loc 1 371 0
+ 1262 03ba 95E0     		b	.L66
+ 1263              	.L77:
+ 372:.\main.c      ****             
+ 373:.\main.c      ****         case commande_moteur:
+ 374:.\main.c      ****             if(((CAS_ACTUEL==CAS_POSITION_INITIALE)&&(hall_Read()==0))  |  
+ 1264              		.loc 1 374 0
+ 1265 03bc 524B     		ldr	r3, .L107+4
+ 1266 03be 1B68     		ldr	r3, [r3]
+ 1267 03c0 012B     		cmp	r3, #1
+ 1268 03c2 06D1     		bne	.L89
+ 1269              		.loc 1 374 0 is_stmt 0 discriminator 1
+ 1270 03c4 FFF7FEFF 		bl	hall_Read
+ 1271 03c8 031C     		mov	r3, r0
+ 1272 03ca 002B     		cmp	r3, #0
+ 1273 03cc 01D1     		bne	.L89
+ 1274              		.loc 1 374 0 discriminator 3
+ 1275 03ce 0123     		mov	r3, #1
+ 1276 03d0 00E0     		b	.L90
+ 1277              	.L89:
+ 1278              		.loc 1 374 0 discriminator 2
+ 1279 03d2 0023     		mov	r3, #0
+ 1280              	.L90:
+ 1281              		.loc 1 374 0 discriminator 4
+ 1282 03d4 1A1C     		add	r2, r3, #0
+ 1283 03d6 0123     		mov	r3, #1
+ 1284 03d8 1340     		and	r3, r2
+ 1285 03da DCB2     		uxtb	r4, r3
+ 375:.\main.c      ****                ((CAS_ACTUEL==CAS_POSITION_X)&&(Counter_1_ReadCounter() >= 96 * NBR_CHANGEMENTS_POSI
+ 1286              		.loc 1 375 0 is_stmt 1 discriminator 4
+ 1287 03dc 4A4B     		ldr	r3, .L107+4
+ 1288 03de 1B68     		ldr	r3, [r3]
+ 1289 03e0 022B     		cmp	r3, #2
+ 1290 03e2 0FD1     		bne	.L91
+ 1291              		.loc 1 375 0 is_stmt 0 discriminator 1
+ 1292 03e4 FFF7FEFF 		bl	Counter_1_ReadCounter
+ 1293 03e8 031C     		mov	r3, r0
+ 1294 03ea 191C     		mov	r1, r3
+ 1295 03ec 474B     		ldr	r3, .L107+8
+ 1296 03ee 1B78     		ldrb	r3, [r3]
+ 1297 03f0 DBB2     		uxtb	r3, r3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 31
+
+
+ 1298 03f2 5AB2     		sxtb	r2, r3
+ 1299 03f4 131C     		mov	r3, r2
+ 1300 03f6 5B00     		lsl	r3, r3, #1
+ 1301 03f8 9B18     		add	r3, r3, r2
+ 1302 03fa 5B01     		lsl	r3, r3, #5
+ 1303 03fc 9942     		cmp	r1, r3
+ 1304 03fe 01DB     		blt	.L91
+ 1305              		.loc 1 375 0 discriminator 3
+ 1306 0400 0123     		mov	r3, #1
+ 1307 0402 00E0     		b	.L92
+ 1308              	.L91:
+ 1309              		.loc 1 375 0 discriminator 2
+ 1310 0404 0023     		mov	r3, #0
+ 1311              	.L92:
+ 374:.\main.c      ****             if(((CAS_ACTUEL==CAS_POSITION_INITIALE)&&(hall_Read()==0))  |  
+ 1312              		.loc 1 374 0 is_stmt 1
+ 1313 0406 1A1C     		add	r2, r3, #0
+ 1314 0408 0123     		mov	r3, #1
+ 1315 040a 1340     		and	r3, r2
+ 1316 040c DBB2     		uxtb	r3, r3
+ 1317 040e 2343     		orr	r3, r4
+ 1318 0410 DBB2     		uxtb	r3, r3
+ 1319 0412 002B     		cmp	r3, #0
+ 1320 0414 63D0     		beq	.L102
+ 376:.\main.c      ****             {      
+ 377:.\main.c      ****                 POSITION_ACTUELLE=POSITION_SUIVANTE;        //Actualisation de POSITION_ACTUELLE
+ 1321              		.loc 1 377 0
+ 1322 0416 3B4B     		ldr	r3, .L107
+ 1323 0418 1B78     		ldrb	r3, [r3]
+ 1324 041a DAB2     		uxtb	r2, r3
+ 1325 041c 3C4B     		ldr	r3, .L107+12
+ 1326 041e 1A70     		strb	r2, [r3]
+ 378:.\main.c      ****                 array[0]=POSITION_ACTUELLE+12;
+ 1327              		.loc 1 378 0
+ 1328 0420 3B4B     		ldr	r3, .L107+12
+ 1329 0422 1B78     		ldrb	r3, [r3]
+ 1330 0424 DBB2     		uxtb	r3, r3
+ 1331 0426 DBB2     		uxtb	r3, r3
+ 1332 0428 0C33     		add	r3, r3, #12
+ 1333 042a DAB2     		uxtb	r2, r3
+ 1334 042c 394B     		ldr	r3, .L107+16
+ 1335 042e 1A70     		strb	r2, [r3]
+ 379:.\main.c      ****                 status = EEPROM_Write(array,eepromArray,3u);
+ 1336              		.loc 1 379 0
+ 1337 0430 384A     		ldr	r2, .L107+16
+ 1338 0432 394B     		ldr	r3, .L107+20
+ 1339 0434 101C     		mov	r0, r2
+ 1340 0436 191C     		mov	r1, r3
+ 1341 0438 0322     		mov	r2, #3
+ 1342 043a FFF7FEFF 		bl	EEPROM_Write
+ 1343 043e 021C     		mov	r2, r0
+ 1344 0440 364B     		ldr	r3, .L107+24
+ 1345 0442 1A60     		str	r2, [r3]
+ 380:.\main.c      **** 
+ 381:.\main.c      ****                 if (position_connue==0)                     
+ 1346              		.loc 1 381 0
+ 1347 0444 364B     		ldr	r3, .L107+28
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 32
+
+
+ 1348 0446 1B68     		ldr	r3, [r3]
+ 1349 0448 002B     		cmp	r3, #0
+ 1350 044a 0ED1     		bne	.L94
+ 382:.\main.c      ****                 {                                           //Actualisation de la position enregist
+ 383:.\main.c      **** 
+ 384:.\main.c      ****                     if (CAS_ACTUEL==CAS_POSITION_INITIALE)  //sur le Buffer de lecture I2C
+ 1351              		.loc 1 384 0
+ 1352 044c 2E4B     		ldr	r3, .L107+4
+ 1353 044e 1B68     		ldr	r3, [r3]
+ 1354 0450 012B     		cmp	r3, #1
+ 1355 0452 06D1     		bne	.L95
+ 385:.\main.c      **** 
+ 386:.\main.c      ****                     {
+ 387:.\main.c      ****                         rBuffer[0]=0x10;
+ 1356              		.loc 1 387 0
+ 1357 0454 334B     		ldr	r3, .L107+32
+ 1358 0456 1022     		mov	r2, #16
+ 1359 0458 1A70     		strb	r2, [r3]
+ 388:.\main.c      ****                         position_connue=1;      //Le système est en position initiale, la position
+ 1360              		.loc 1 388 0
+ 1361 045a 314B     		ldr	r3, .L107+28
+ 1362 045c 0122     		mov	r2, #1
+ 1363 045e 1A60     		str	r2, [r3]
+ 1364 0460 09E0     		b	.L96
+ 1365              	.L95:
+ 389:.\main.c      ****                     }                                        
+ 390:.\main.c      ****                     else rBuffer[0]=0xFF;
+ 1366              		.loc 1 390 0
+ 1367 0462 304B     		ldr	r3, .L107+32
+ 1368 0464 FF22     		mov	r2, #255
+ 1369 0466 1A70     		strb	r2, [r3]
+ 1370 0468 05E0     		b	.L96
+ 1371              	.L94:
+ 391:.\main.c      ****                 }
+ 392:.\main.c      **** 
+ 393:.\main.c      ****                 else                            //Actualisation de la position enregistrée sur le 
+ 394:.\main.c      ****                 {                               //de lecture I2C si la position est connue
+ 395:.\main.c      ****                     rBuffer[0]=calcul_PDS_position();       
+ 1372              		.loc 1 395 0
+ 1373 046a FFF7FEFF 		bl	calcul_PDS_position
+ 1374 046e 031C     		mov	r3, r0
+ 1375 0470 1A1C     		mov	r2, r3
+ 1376 0472 2C4B     		ldr	r3, .L107+32
+ 1377 0474 1A70     		strb	r2, [r3]
+ 1378              	.L96:
+ 396:.\main.c      ****                 }  
+ 397:.\main.c      ****                 array[1]=rBuffer[0];
+ 1379              		.loc 1 397 0
+ 1380 0476 2B4B     		ldr	r3, .L107+32
+ 1381 0478 1A78     		ldrb	r2, [r3]
+ 1382 047a 264B     		ldr	r3, .L107+16
+ 1383 047c 5A70     		strb	r2, [r3, #1]
+ 398:.\main.c      ****                 status = EEPROM_Write(array,eepromArray,3u);
+ 1384              		.loc 1 398 0
+ 1385 047e 254A     		ldr	r2, .L107+16
+ 1386 0480 254B     		ldr	r3, .L107+20
+ 1387 0482 101C     		mov	r0, r2
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 33
+
+
+ 1388 0484 191C     		mov	r1, r3
+ 1389 0486 0322     		mov	r2, #3
+ 1390 0488 FFF7FEFF 		bl	EEPROM_Write
+ 1391 048c 021C     		mov	r2, r0
+ 1392 048e 234B     		ldr	r3, .L107+24
+ 1393 0490 1A60     		str	r2, [r3]
+ 399:.\main.c      ****                 CAS_ACTUEL=CAS_ARRET;
+ 1394              		.loc 1 399 0
+ 1395 0492 1D4B     		ldr	r3, .L107+4
+ 1396 0494 0022     		mov	r2, #0
+ 1397 0496 1A60     		str	r2, [r3]
+ 400:.\main.c      ****                 registre=0x01;  //arrêt du moteur si les capteurs à effet hall ont
+ 1398              		.loc 1 400 0
+ 1399 0498 234B     		ldr	r3, .L107+36
+ 1400 049a 0122     		mov	r2, #1
+ 1401 049c 1A70     		strb	r2, [r3]
+ 401:.\main.c      ****                                 //détecté la position initiale ou si le moteur a fait 
+ 402:.\main.c      ****                                 //le bon nombre de pas pour arriver à la position   voulue 
+ 403:.\main.c      ****             }                   
+ 404:.\main.c      ****             break;                  
+ 1402              		.loc 1 404 0
+ 1403 049e 1EE0     		b	.L102
+ 1404              	.L78:
+ 405:.\main.c      ****             
+ 406:.\main.c      ****         case SleepMode:     //mode veille
+ 407:.\main.c      ****            
+ 408:.\main.c      ****             if(!(I2CS_I2CSlaveStatus()&  
+ 1405              		.loc 1 408 0
+ 1406 04a0 FFF7FEFF 		bl	I2CS_I2CSlaveStatus
+ 1407 04a4 021C     		mov	r2, r0
+ 1408 04a6 3323     		mov	r3, #51
+ 1409 04a8 1340     		and	r3, r2
+ 1410 04aa 1AD1     		bne	.L103
+ 409:.\main.c      ****                 (I2CS_I2C_SSTAT_RD_BUSY|I2CS_I2C_SSTAT_RD_BUSY|  
+ 410:.\main.c      ****                     I2CS_I2C_SSTAT_WR_BUSY|I2CS_I2C_SSTAT_WR_CMPLT|  
+ 411:.\main.c      ****                     I2CS_I2C_SSTAT_RD_CMPLT))) // Pas d'activité sur le bus I2C  
+ 412:.\main.c      ****             {  
+ 413:.\main.c      ****                 I2CS_Sleep();       //I2C Module Sleep 
+ 1411              		.loc 1 413 0
+ 1412 04ac FFF7FEFF 		bl	I2CS_Sleep
+ 414:.\main.c      ****                 CySysWdtDisable(CY_SYS_WDT_COUNTER0_MASK);//désactive le reset du watchdog
+ 1413              		.loc 1 414 0
+ 1414 04b0 0120     		mov	r0, #1
+ 1415 04b2 FFF7FEFF 		bl	CySysWdtDisable
+ 415:.\main.c      **** 
+ 416:.\main.c      ****                 CySysPmSleep();     // Mise en veille (sleep)  
+ 1416              		.loc 1 416 0
+ 1417 04b6 FFF7FEFF 		bl	CySysPmSleep
+ 417:.\main.c      ****                 I2CS_Wakeup();      // Réveil (Wakeup) sur une interruption générée par l'I2C  
+ 1418              		.loc 1 417 0
+ 1419 04ba FFF7FEFF 		bl	I2CS_Wakeup
+ 418:.\main.c      ****                 CyGlobalIntEnable;  // Interruptions autorisées
+ 1420              		.loc 1 418 0
+ 1421              	@ 418 ".\main.c" 1
+ 1422 04be 62B6     		CPSIE   i
+ 1423              	@ 0 "" 2
+ 419:.\main.c      ****                 CySysWdtEnable(CY_SYS_WDT_COUNTER0_MASK); //réactive le watchdog
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 34
+
+
+ 1424              		.loc 1 419 0
+ 1425              		.code	16
+ 1426 04c0 0120     		mov	r0, #1
+ 1427 04c2 FFF7FEFF 		bl	CySysWdtEnable
+ 420:.\main.c      ****             }
+ 421:.\main.c      ****             break; 
+ 1428              		.loc 1 421 0
+ 1429 04c6 0CE0     		b	.L103
+ 1430              	.L79:
+ 422:.\main.c      ****             
+ 423:.\main.c      ****         case init_reset:
+ 424:.\main.c      ****             if (POSITION_ACTUELLE==0) pblm_reset=0;
+ 1431              		.loc 1 424 0
+ 1432 04c8 114B     		ldr	r3, .L107+12
+ 1433 04ca 1B78     		ldrb	r3, [r3]
+ 1434 04cc DBB2     		uxtb	r3, r3
+ 1435 04ce 002B     		cmp	r3, #0
+ 1436 04d0 09D1     		bne	.L104
+ 1437              		.loc 1 424 0 is_stmt 0 discriminator 1
+ 1438 04d2 164B     		ldr	r3, .L107+40
+ 1439 04d4 0022     		mov	r2, #0
+ 1440 04d6 1A60     		str	r2, [r3]
+ 425:.\main.c      ****             break;
+ 1441              		.loc 1 425 0 is_stmt 1 discriminator 1
+ 1442 04d8 05E0     		b	.L104
+ 1443              	.L101:
+ 301:.\main.c      ****             break;
+ 1444              		.loc 1 301 0
+ 1445 04da C046     		mov	r8, r8
+ 1446 04dc 04E0     		b	.L66
+ 1447              	.L102:
+ 404:.\main.c      ****             break;                  
+ 1448              		.loc 1 404 0
+ 1449 04de C046     		mov	r8, r8
+ 1450 04e0 02E0     		b	.L66
+ 1451              	.L103:
+ 421:.\main.c      ****             break; 
+ 1452              		.loc 1 421 0
+ 1453 04e2 C046     		mov	r8, r8
+ 1454 04e4 00E0     		b	.L66
+ 1455              	.L104:
+ 1456              		.loc 1 425 0
+ 1457 04e6 C046     		mov	r8, r8
+ 1458              	.L66:
+ 426:.\main.c      ****     }
+ 427:.\main.c      ****     Control_Reg_Write(registre);    //écriture des valeurs de enable et DIR
+ 1459              		.loc 1 427 0
+ 1460 04e8 0F4B     		ldr	r3, .L107+36
+ 1461 04ea 1B78     		ldrb	r3, [r3]
+ 1462 04ec DBB2     		uxtb	r3, r3
+ 1463 04ee 181C     		mov	r0, r3
+ 1464 04f0 FFF7FEFF 		bl	Control_Reg_Write
+ 428:.\main.c      ****     array[1]=rBuffer[0];
+ 1465              		.loc 1 428 0
+ 1466 04f4 0B4B     		ldr	r3, .L107+32
+ 1467 04f6 1A78     		ldrb	r2, [r3]
+ 1468 04f8 064B     		ldr	r3, .L107+16
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 35
+
+
+ 1469 04fa 5A70     		strb	r2, [r3, #1]
+ 429:.\main.c      **** }
+ 1470              		.loc 1 429 0
+ 1471 04fc BD46     		mov	sp, r7
+ 1472 04fe 03B0     		add	sp, sp, #12
+ 1473              		@ sp needed for prologue
+ 1474 0500 90BD     		pop	{r4, r7, pc}
+ 1475              	.L108:
+ 1476 0502 C046     		.align	2
+ 1477              	.L107:
+ 1478 0504 00000000 		.word	POSITION_SUIVANTE
+ 1479 0508 00000000 		.word	CAS_ACTUEL
+ 1480 050c 00000000 		.word	NBR_CHANGEMENTS_POSITION
+ 1481 0510 00000000 		.word	POSITION_ACTUELLE
+ 1482 0514 00000000 		.word	array
+ 1483 0518 00000000 		.word	eepromArray
+ 1484 051c 00000000 		.word	status
+ 1485 0520 00000000 		.word	position_connue
+ 1486 0524 00000000 		.word	rBuffer
+ 1487 0528 00000000 		.word	registre
+ 1488 052c 00000000 		.word	pblm_reset
+ 1489              		.cfi_endproc
+ 1490              	.LFE37:
+ 1491              		.size	automate, .-automate
+ 1492              		.bss
+ 1493              	etat_futur.5140:
+ 1494 0018 00       		.space	1
+ 1495 0019 000000   		.text
+ 1496              	.Letext0:
+ 1497              		.file 2 "./Generated_Source/PSoC4/cytypes.h"
+ 1498              		.file 3 "<built-in>"
+ 1499              		.section	.debug_info,"",%progbits
+ 1500              	.Ldebug_info0:
+ 1501 0000 17030000 		.4byte	0x317
+ 1502 0004 0200     		.2byte	0x2
+ 1503 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 1504 000a 04       		.byte	0x4
+ 1505 000b 01       		.uleb128 0x1
+ 1506 000c 3C000000 		.4byte	.LASF53
+ 1507 0010 01       		.byte	0x1
+ 1508 0011 EA010000 		.4byte	.LASF54
+ 1509 0015 52010000 		.4byte	.LASF55
+ 1510 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 1511 001d 00000000 		.4byte	0
+ 1512 0021 00000000 		.4byte	0
+ 1513 0025 00000000 		.4byte	.Ldebug_line0
+ 1514 0029 02       		.uleb128 0x2
+ 1515 002a 01       		.byte	0x1
+ 1516 002b 06       		.byte	0x6
+ 1517 002c D0020000 		.4byte	.LASF0
+ 1518 0030 02       		.uleb128 0x2
+ 1519 0031 01       		.byte	0x1
+ 1520 0032 08       		.byte	0x8
+ 1521 0033 0B010000 		.4byte	.LASF1
+ 1522 0037 02       		.uleb128 0x2
+ 1523 0038 02       		.byte	0x2
+ 1524 0039 05       		.byte	0x5
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 36
+
+
+ 1525 003a 98020000 		.4byte	.LASF2
+ 1526 003e 02       		.uleb128 0x2
+ 1527 003f 02       		.byte	0x2
+ 1528 0040 07       		.byte	0x7
+ 1529 0041 99000000 		.4byte	.LASF3
+ 1530 0045 02       		.uleb128 0x2
+ 1531 0046 04       		.byte	0x4
+ 1532 0047 05       		.byte	0x5
+ 1533 0048 BA020000 		.4byte	.LASF4
+ 1534 004c 02       		.uleb128 0x2
+ 1535 004d 04       		.byte	0x4
+ 1536 004e 07       		.byte	0x7
+ 1537 004f 29010000 		.4byte	.LASF5
+ 1538 0053 02       		.uleb128 0x2
+ 1539 0054 08       		.byte	0x8
+ 1540 0055 05       		.byte	0x5
+ 1541 0056 85020000 		.4byte	.LASF6
+ 1542 005a 02       		.uleb128 0x2
+ 1543 005b 08       		.byte	0x8
+ 1544 005c 07       		.byte	0x7
+ 1545 005d 36020000 		.4byte	.LASF7
+ 1546 0061 03       		.uleb128 0x3
+ 1547 0062 04       		.byte	0x4
+ 1548 0063 05       		.byte	0x5
+ 1549 0064 696E7400 		.ascii	"int\000"
+ 1550 0068 02       		.uleb128 0x2
+ 1551 0069 04       		.byte	0x4
+ 1552 006a 07       		.byte	0x7
+ 1553 006b 14020000 		.4byte	.LASF8
+ 1554 006f 04       		.uleb128 0x4
+ 1555 0070 3B010000 		.4byte	.LASF9
+ 1556 0074 02       		.byte	0x2
+ 1557 0075 5B       		.byte	0x5b
+ 1558 0076 30000000 		.4byte	0x30
+ 1559 007a 04       		.uleb128 0x4
+ 1560 007b 08020000 		.4byte	.LASF10
+ 1561 007f 02       		.byte	0x2
+ 1562 0080 5D       		.byte	0x5d
+ 1563 0081 4C000000 		.4byte	0x4c
+ 1564 0085 04       		.uleb128 0x4
+ 1565 0086 FC010000 		.4byte	.LASF11
+ 1566 008a 02       		.byte	0x2
+ 1567 008b 5E       		.byte	0x5e
+ 1568 008c 29000000 		.4byte	0x29
+ 1569 0090 02       		.uleb128 0x2
+ 1570 0091 04       		.byte	0x4
+ 1571 0092 04       		.byte	0x4
+ 1572 0093 F1000000 		.4byte	.LASF12
+ 1573 0097 02       		.uleb128 0x2
+ 1574 0098 08       		.byte	0x8
+ 1575 0099 04       		.byte	0x4
+ 1576 009a D9010000 		.4byte	.LASF13
+ 1577 009e 02       		.uleb128 0x2
+ 1578 009f 01       		.byte	0x1
+ 1579 00a0 08       		.byte	0x8
+ 1580 00a1 93020000 		.4byte	.LASF14
+ 1581 00a5 04       		.uleb128 0x4
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 37
+
+
+ 1582 00a6 F3010000 		.4byte	.LASF15
+ 1583 00aa 02       		.byte	0x2
+ 1584 00ab E8       		.byte	0xe8
+ 1585 00ac 4C000000 		.4byte	0x4c
+ 1586 00b0 05       		.uleb128 0x5
+ 1587 00b1 6F000000 		.4byte	0x6f
+ 1588 00b5 02       		.uleb128 0x2
+ 1589 00b6 04       		.byte	0x4
+ 1590 00b7 07       		.byte	0x7
+ 1591 00b8 7C020000 		.4byte	.LASF16
+ 1592 00bc 06       		.uleb128 0x6
+ 1593 00bd 01       		.byte	0x1
+ 1594 00be 0F020000 		.4byte	.LASF21
+ 1595 00c2 01       		.byte	0x1
+ 1596 00c3 3D       		.byte	0x3d
+ 1597 00c4 61000000 		.4byte	0x61
+ 1598 00c8 00000000 		.4byte	.LFB33
+ 1599 00cc F0000000 		.4byte	.LFE33
+ 1600 00d0 00000000 		.4byte	.LLST0
+ 1601 00d4 01       		.byte	0x1
+ 1602 00d5 07       		.uleb128 0x7
+ 1603 00d6 01       		.byte	0x1
+ 1604 00d7 AD020000 		.4byte	.LASF17
+ 1605 00db 01       		.byte	0x1
+ 1606 00dc 77       		.byte	0x77
+ 1607 00dd 01       		.byte	0x1
+ 1608 00de 6F000000 		.4byte	0x6f
+ 1609 00e2 00000000 		.4byte	.LFB34
+ 1610 00e6 78000000 		.4byte	.LFE34
+ 1611 00ea 2C000000 		.4byte	.LLST1
+ 1612 00ee 01       		.byte	0x1
+ 1613 00ef 02010000 		.4byte	0x102
+ 1614 00f3 08       		.uleb128 0x8
+ 1615 00f4 01030000 		.4byte	.LASF19
+ 1616 00f8 01       		.byte	0x1
+ 1617 00f9 79       		.byte	0x79
+ 1618 00fa 6F000000 		.4byte	0x6f
+ 1619 00fe 02       		.byte	0x2
+ 1620 00ff 91       		.byte	0x91
+ 1621 0100 77       		.sleb128 -9
+ 1622 0101 00       		.byte	0
+ 1623 0102 07       		.uleb128 0x7
+ 1624 0103 01       		.byte	0x1
+ 1625 0104 B5010000 		.4byte	.LASF18
+ 1626 0108 01       		.byte	0x1
+ 1627 0109 98       		.byte	0x98
+ 1628 010a 01       		.byte	0x1
+ 1629 010b 6F000000 		.4byte	0x6f
+ 1630 010f 00000000 		.4byte	.LFB35
+ 1631 0113 7C000000 		.4byte	.LFE35
+ 1632 0117 64000000 		.4byte	.LLST2
+ 1633 011b 01       		.byte	0x1
+ 1634 011c 3E010000 		.4byte	0x13e
+ 1635 0120 08       		.uleb128 0x8
+ 1636 0121 0A030000 		.4byte	.LASF20
+ 1637 0125 01       		.byte	0x1
+ 1638 0126 9A       		.byte	0x9a
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 38
+
+
+ 1639 0127 6F000000 		.4byte	0x6f
+ 1640 012b 02       		.byte	0x2
+ 1641 012c 91       		.byte	0x91
+ 1642 012d 77       		.sleb128 -9
+ 1643 012e 09       		.uleb128 0x9
+ 1644 012f 01       		.byte	0x1
+ 1645 0130 61627300 		.ascii	"abs\000"
+ 1646 0134 03       		.byte	0x3
+ 1647 0135 00       		.byte	0
+ 1648 0136 61000000 		.4byte	0x61
+ 1649 013a 01       		.byte	0x1
+ 1650 013b 0A       		.uleb128 0xa
+ 1651 013c 00       		.byte	0
+ 1652 013d 00       		.byte	0
+ 1653 013e 0B       		.uleb128 0xb
+ 1654 013f 01       		.byte	0x1
+ 1655 0140 E0000000 		.4byte	.LASF22
+ 1656 0144 01       		.byte	0x1
+ 1657 0145 A6       		.byte	0xa6
+ 1658 0146 01       		.byte	0x1
+ 1659 0147 00000000 		.4byte	.LFB36
+ 1660 014b F8000000 		.4byte	.LFE36
+ 1661 014f 9C000000 		.4byte	.LLST3
+ 1662 0153 01       		.byte	0x1
+ 1663 0154 0C       		.uleb128 0xc
+ 1664 0155 01       		.byte	0x1
+ 1665 0156 F8020000 		.4byte	.LASF56
+ 1666 015a 01       		.byte	0x1
+ 1667 015b C4       		.byte	0xc4
+ 1668 015c 01       		.byte	0x1
+ 1669 015d 00000000 		.4byte	.LFB37
+ 1670 0161 30050000 		.4byte	.LFE37
+ 1671 0165 C8000000 		.4byte	.LLST4
+ 1672 0169 01       		.byte	0x1
+ 1673 016a F0010000 		.4byte	0x1f0
+ 1674 016e 0D       		.uleb128 0xd
+ 1675 016f 01       		.byte	0x1
+ 1676 0170 01       		.byte	0x1
+ 1677 0171 C7       		.byte	0xc7
+ 1678 0172 C5010000 		.4byte	0x1c5
+ 1679 0176 0E       		.uleb128 0xe
+ 1680 0177 C9010000 		.4byte	.LASF23
+ 1681 017b 00       		.sleb128 0
+ 1682 017c 0E       		.uleb128 0xe
+ 1683 017d B7000000 		.4byte	.LASF24
+ 1684 0181 01       		.sleb128 1
+ 1685 0182 0E       		.uleb128 0xe
+ 1686 0183 01020000 		.4byte	.LASF25
+ 1687 0187 02       		.sleb128 2
+ 1688 0188 0E       		.uleb128 0xe
+ 1689 0189 F7000000 		.4byte	.LASF26
+ 1690 018d 03       		.sleb128 3
+ 1691 018e 0E       		.uleb128 0xe
+ 1692 018f 01010000 		.4byte	.LASF27
+ 1693 0193 04       		.sleb128 4
+ 1694 0194 0E       		.uleb128 0xe
+ 1695 0195 85000000 		.4byte	.LASF28
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 39
+
+
+ 1696 0199 05       		.sleb128 5
+ 1697 019a 0E       		.uleb128 0xe
+ 1698 019b 11000000 		.4byte	.LASF29
+ 1699 019f 06       		.sleb128 6
+ 1700 01a0 0E       		.uleb128 0xe
+ 1701 01a1 17000000 		.4byte	.LASF30
+ 1702 01a5 07       		.sleb128 7
+ 1703 01a6 0E       		.uleb128 0xe
+ 1704 01a7 1D000000 		.4byte	.LASF31
+ 1705 01ab 08       		.sleb128 8
+ 1706 01ac 0E       		.uleb128 0xe
+ 1707 01ad 4D020000 		.4byte	.LASF32
+ 1708 01b1 09       		.sleb128 9
+ 1709 01b2 0E       		.uleb128 0xe
+ 1710 01b3 19010000 		.4byte	.LASF33
+ 1711 01b7 0A       		.sleb128 10
+ 1712 01b8 0E       		.uleb128 0xe
+ 1713 01b9 8F000000 		.4byte	.LASF34
+ 1714 01bd 0B       		.sleb128 11
+ 1715 01be 0E       		.uleb128 0xe
+ 1716 01bf AC000000 		.4byte	.LASF35
+ 1717 01c3 0C       		.sleb128 12
+ 1718 01c4 00       		.byte	0
+ 1719 01c5 04       		.uleb128 0x4
+ 1720 01c6 E0010000 		.4byte	.LASF36
+ 1721 01ca 01       		.byte	0x1
+ 1722 01cb CB       		.byte	0xcb
+ 1723 01cc 6E010000 		.4byte	0x16e
+ 1724 01d0 08       		.uleb128 0x8
+ 1725 01d1 C5000000 		.4byte	.LASF37
+ 1726 01d5 01       		.byte	0x1
+ 1727 01d6 CD       		.byte	0xcd
+ 1728 01d7 C5010000 		.4byte	0x1c5
+ 1729 01db 02       		.byte	0x2
+ 1730 01dc 91       		.byte	0x91
+ 1731 01dd 6F       		.sleb128 -17
+ 1732 01de 08       		.uleb128 0x8
+ 1733 01df A2020000 		.4byte	.LASF38
+ 1734 01e3 01       		.byte	0x1
+ 1735 01e4 CE       		.byte	0xce
+ 1736 01e5 C5010000 		.4byte	0x1c5
+ 1737 01e9 05       		.byte	0x5
+ 1738 01ea 03       		.byte	0x3
+ 1739 01eb 18000000 		.4byte	etat_futur.5140
+ 1740 01ef 00       		.byte	0
+ 1741 01f0 0F       		.uleb128 0xf
+ 1742 01f1 6F000000 		.4byte	0x6f
+ 1743 01f5 00020000 		.4byte	0x200
+ 1744 01f9 10       		.uleb128 0x10
+ 1745 01fa B5000000 		.4byte	0xb5
+ 1746 01fe 02       		.byte	0x2
+ 1747 01ff 00       		.byte	0
+ 1748 0200 08       		.uleb128 0x8
+ 1749 0201 EC020000 		.4byte	.LASF39
+ 1750 0205 01       		.byte	0x1
+ 1751 0206 26       		.byte	0x26
+ 1752 0207 11020000 		.4byte	0x211
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 40
+
+
+ 1753 020b 05       		.byte	0x5
+ 1754 020c 03       		.byte	0x3
+ 1755 020d 00000000 		.4byte	eepromArray
+ 1756 0211 11       		.uleb128 0x11
+ 1757 0212 F0010000 		.4byte	0x1f0
+ 1758 0216 12       		.uleb128 0x12
+ 1759 0217 C3020000 		.4byte	.LASF40
+ 1760 021b 01       		.byte	0x1
+ 1761 021c 16       		.byte	0x16
+ 1762 021d B0000000 		.4byte	0xb0
+ 1763 0221 01       		.byte	0x1
+ 1764 0222 05       		.byte	0x5
+ 1765 0223 03       		.byte	0x3
+ 1766 0224 00000000 		.4byte	commande_ODB
+ 1767 0228 12       		.uleb128 0x12
+ 1768 0229 00000000 		.4byte	.LASF41
+ 1769 022d 01       		.byte	0x1
+ 1770 022e 17       		.byte	0x17
+ 1771 022f B0000000 		.4byte	0xb0
+ 1772 0233 01       		.byte	0x1
+ 1773 0234 05       		.byte	0x5
+ 1774 0235 03       		.byte	0x3
+ 1775 0236 00000000 		.4byte	registre
+ 1776 023a 12       		.uleb128 0x12
+ 1777 023b 21020000 		.4byte	.LASF42
+ 1778 023f 01       		.byte	0x1
+ 1779 0240 18       		.byte	0x18
+ 1780 0241 B0000000 		.4byte	0xb0
+ 1781 0245 01       		.byte	0x1
+ 1782 0246 05       		.byte	0x5
+ 1783 0247 03       		.byte	0x3
+ 1784 0248 00000000 		.4byte	commande_avant_reset
+ 1785 024c 12       		.uleb128 0x12
+ 1786 024d 41010000 		.4byte	.LASF43
+ 1787 0251 01       		.byte	0x1
+ 1788 0252 1B       		.byte	0x1b
+ 1789 0253 5E020000 		.4byte	0x25e
+ 1790 0257 01       		.byte	0x1
+ 1791 0258 05       		.byte	0x5
+ 1792 0259 03       		.byte	0x3
+ 1793 025a 00000000 		.4byte	CAS_ACTUEL
+ 1794 025e 05       		.uleb128 0x5
+ 1795 025f 61000000 		.4byte	0x61
+ 1796 0263 12       		.uleb128 0x12
+ 1797 0264 6A020000 		.4byte	.LASF44
+ 1798 0268 01       		.byte	0x1
+ 1799 0269 1C       		.byte	0x1c
+ 1800 026a 75020000 		.4byte	0x275
+ 1801 026e 01       		.byte	0x1
+ 1802 026f 05       		.byte	0x5
+ 1803 0270 03       		.byte	0x3
+ 1804 0271 00000000 		.4byte	POSITION_ACTUELLE
+ 1805 0275 05       		.uleb128 0x5
+ 1806 0276 85000000 		.4byte	0x85
+ 1807 027a 12       		.uleb128 0x12
+ 1808 027b 58020000 		.4byte	.LASF45
+ 1809 027f 01       		.byte	0x1
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 41
+
+
+ 1810 0280 1C       		.byte	0x1c
+ 1811 0281 75020000 		.4byte	0x275
+ 1812 0285 01       		.byte	0x1
+ 1813 0286 05       		.byte	0x5
+ 1814 0287 03       		.byte	0x3
+ 1815 0288 00000000 		.4byte	POSITION_SUIVANTE
+ 1816 028c 12       		.uleb128 0x12
+ 1817 028d 23000000 		.4byte	.LASF46
+ 1818 0291 01       		.byte	0x1
+ 1819 0292 1C       		.byte	0x1c
+ 1820 0293 75020000 		.4byte	0x275
+ 1821 0297 01       		.byte	0x1
+ 1822 0298 05       		.byte	0x5
+ 1823 0299 03       		.byte	0x3
+ 1824 029a 00000000 		.4byte	NBR_CHANGEMENTS_POSITION
+ 1825 029e 12       		.uleb128 0x12
+ 1826 029f 4C010000 		.4byte	.LASF47
+ 1827 02a3 01       		.byte	0x1
+ 1828 02a4 28       		.byte	0x28
+ 1829 02a5 F0010000 		.4byte	0x1f0
+ 1830 02a9 01       		.byte	0x1
+ 1831 02aa 05       		.byte	0x5
+ 1832 02ab 03       		.byte	0x3
+ 1833 02ac 00000000 		.4byte	array
+ 1834 02b0 0F       		.uleb128 0xf
+ 1835 02b1 6F000000 		.4byte	0x6f
+ 1836 02b5 C0020000 		.4byte	0x2c0
+ 1837 02b9 10       		.uleb128 0x10
+ 1838 02ba B5000000 		.4byte	0xb5
+ 1839 02be 00       		.byte	0
+ 1840 02bf 00       		.byte	0
+ 1841 02c0 12       		.uleb128 0x12
+ 1842 02c1 D8000000 		.4byte	.LASF48
+ 1843 02c5 01       		.byte	0x1
+ 1844 02c6 2D       		.byte	0x2d
+ 1845 02c7 B0020000 		.4byte	0x2b0
+ 1846 02cb 01       		.byte	0x1
+ 1847 02cc 05       		.byte	0x5
+ 1848 02cd 03       		.byte	0x3
+ 1849 02ce 00000000 		.4byte	wBuffer
+ 1850 02d2 12       		.uleb128 0x12
+ 1851 02d3 09000000 		.4byte	.LASF49
+ 1852 02d7 01       		.byte	0x1
+ 1853 02d8 2E       		.byte	0x2e
+ 1854 02d9 B0020000 		.4byte	0x2b0
+ 1855 02dd 01       		.byte	0x1
+ 1856 02de 05       		.byte	0x5
+ 1857 02df 03       		.byte	0x3
+ 1858 02e0 00000000 		.4byte	rBuffer
+ 1859 02e4 12       		.uleb128 0x12
+ 1860 02e5 DC020000 		.4byte	.LASF50
+ 1861 02e9 01       		.byte	0x1
+ 1862 02ea 30       		.byte	0x30
+ 1863 02eb 61000000 		.4byte	0x61
+ 1864 02ef 01       		.byte	0x1
+ 1865 02f0 05       		.byte	0x5
+ 1866 02f1 03       		.byte	0x3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 42
+
+
+ 1867 02f2 00000000 		.4byte	position_connue
+ 1868 02f6 12       		.uleb128 0x12
+ 1869 02f7 17030000 		.4byte	.LASF51
+ 1870 02fb 01       		.byte	0x1
+ 1871 02fc 32       		.byte	0x32
+ 1872 02fd 61000000 		.4byte	0x61
+ 1873 0301 01       		.byte	0x1
+ 1874 0302 05       		.byte	0x5
+ 1875 0303 03       		.byte	0x3
+ 1876 0304 00000000 		.4byte	pblm_reset
+ 1877 0308 12       		.uleb128 0x12
+ 1878 0309 D1000000 		.4byte	.LASF52
+ 1879 030d 01       		.byte	0x1
+ 1880 030e 34       		.byte	0x34
+ 1881 030f A5000000 		.4byte	0xa5
+ 1882 0313 01       		.byte	0x1
+ 1883 0314 05       		.byte	0x5
+ 1884 0315 03       		.byte	0x3
+ 1885 0316 00000000 		.4byte	status
+ 1886 031a 00       		.byte	0
+ 1887              		.section	.debug_abbrev,"",%progbits
+ 1888              	.Ldebug_abbrev0:
+ 1889 0000 01       		.uleb128 0x1
+ 1890 0001 11       		.uleb128 0x11
+ 1891 0002 01       		.byte	0x1
+ 1892 0003 25       		.uleb128 0x25
+ 1893 0004 0E       		.uleb128 0xe
+ 1894 0005 13       		.uleb128 0x13
+ 1895 0006 0B       		.uleb128 0xb
+ 1896 0007 03       		.uleb128 0x3
+ 1897 0008 0E       		.uleb128 0xe
+ 1898 0009 1B       		.uleb128 0x1b
+ 1899 000a 0E       		.uleb128 0xe
+ 1900 000b 55       		.uleb128 0x55
+ 1901 000c 06       		.uleb128 0x6
+ 1902 000d 11       		.uleb128 0x11
+ 1903 000e 01       		.uleb128 0x1
+ 1904 000f 52       		.uleb128 0x52
+ 1905 0010 01       		.uleb128 0x1
+ 1906 0011 10       		.uleb128 0x10
+ 1907 0012 06       		.uleb128 0x6
+ 1908 0013 00       		.byte	0
+ 1909 0014 00       		.byte	0
+ 1910 0015 02       		.uleb128 0x2
+ 1911 0016 24       		.uleb128 0x24
+ 1912 0017 00       		.byte	0
+ 1913 0018 0B       		.uleb128 0xb
+ 1914 0019 0B       		.uleb128 0xb
+ 1915 001a 3E       		.uleb128 0x3e
+ 1916 001b 0B       		.uleb128 0xb
+ 1917 001c 03       		.uleb128 0x3
+ 1918 001d 0E       		.uleb128 0xe
+ 1919 001e 00       		.byte	0
+ 1920 001f 00       		.byte	0
+ 1921 0020 03       		.uleb128 0x3
+ 1922 0021 24       		.uleb128 0x24
+ 1923 0022 00       		.byte	0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 43
+
+
+ 1924 0023 0B       		.uleb128 0xb
+ 1925 0024 0B       		.uleb128 0xb
+ 1926 0025 3E       		.uleb128 0x3e
+ 1927 0026 0B       		.uleb128 0xb
+ 1928 0027 03       		.uleb128 0x3
+ 1929 0028 08       		.uleb128 0x8
+ 1930 0029 00       		.byte	0
+ 1931 002a 00       		.byte	0
+ 1932 002b 04       		.uleb128 0x4
+ 1933 002c 16       		.uleb128 0x16
+ 1934 002d 00       		.byte	0
+ 1935 002e 03       		.uleb128 0x3
+ 1936 002f 0E       		.uleb128 0xe
+ 1937 0030 3A       		.uleb128 0x3a
+ 1938 0031 0B       		.uleb128 0xb
+ 1939 0032 3B       		.uleb128 0x3b
+ 1940 0033 0B       		.uleb128 0xb
+ 1941 0034 49       		.uleb128 0x49
+ 1942 0035 13       		.uleb128 0x13
+ 1943 0036 00       		.byte	0
+ 1944 0037 00       		.byte	0
+ 1945 0038 05       		.uleb128 0x5
+ 1946 0039 35       		.uleb128 0x35
+ 1947 003a 00       		.byte	0
+ 1948 003b 49       		.uleb128 0x49
+ 1949 003c 13       		.uleb128 0x13
+ 1950 003d 00       		.byte	0
+ 1951 003e 00       		.byte	0
+ 1952 003f 06       		.uleb128 0x6
+ 1953 0040 2E       		.uleb128 0x2e
+ 1954 0041 00       		.byte	0
+ 1955 0042 3F       		.uleb128 0x3f
+ 1956 0043 0C       		.uleb128 0xc
+ 1957 0044 03       		.uleb128 0x3
+ 1958 0045 0E       		.uleb128 0xe
+ 1959 0046 3A       		.uleb128 0x3a
+ 1960 0047 0B       		.uleb128 0xb
+ 1961 0048 3B       		.uleb128 0x3b
+ 1962 0049 0B       		.uleb128 0xb
+ 1963 004a 49       		.uleb128 0x49
+ 1964 004b 13       		.uleb128 0x13
+ 1965 004c 11       		.uleb128 0x11
+ 1966 004d 01       		.uleb128 0x1
+ 1967 004e 12       		.uleb128 0x12
+ 1968 004f 01       		.uleb128 0x1
+ 1969 0050 40       		.uleb128 0x40
+ 1970 0051 06       		.uleb128 0x6
+ 1971 0052 9642     		.uleb128 0x2116
+ 1972 0054 0C       		.uleb128 0xc
+ 1973 0055 00       		.byte	0
+ 1974 0056 00       		.byte	0
+ 1975 0057 07       		.uleb128 0x7
+ 1976 0058 2E       		.uleb128 0x2e
+ 1977 0059 01       		.byte	0x1
+ 1978 005a 3F       		.uleb128 0x3f
+ 1979 005b 0C       		.uleb128 0xc
+ 1980 005c 03       		.uleb128 0x3
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 44
+
+
+ 1981 005d 0E       		.uleb128 0xe
+ 1982 005e 3A       		.uleb128 0x3a
+ 1983 005f 0B       		.uleb128 0xb
+ 1984 0060 3B       		.uleb128 0x3b
+ 1985 0061 0B       		.uleb128 0xb
+ 1986 0062 27       		.uleb128 0x27
+ 1987 0063 0C       		.uleb128 0xc
+ 1988 0064 49       		.uleb128 0x49
+ 1989 0065 13       		.uleb128 0x13
+ 1990 0066 11       		.uleb128 0x11
+ 1991 0067 01       		.uleb128 0x1
+ 1992 0068 12       		.uleb128 0x12
+ 1993 0069 01       		.uleb128 0x1
+ 1994 006a 40       		.uleb128 0x40
+ 1995 006b 06       		.uleb128 0x6
+ 1996 006c 9642     		.uleb128 0x2116
+ 1997 006e 0C       		.uleb128 0xc
+ 1998 006f 01       		.uleb128 0x1
+ 1999 0070 13       		.uleb128 0x13
+ 2000 0071 00       		.byte	0
+ 2001 0072 00       		.byte	0
+ 2002 0073 08       		.uleb128 0x8
+ 2003 0074 34       		.uleb128 0x34
+ 2004 0075 00       		.byte	0
+ 2005 0076 03       		.uleb128 0x3
+ 2006 0077 0E       		.uleb128 0xe
+ 2007 0078 3A       		.uleb128 0x3a
+ 2008 0079 0B       		.uleb128 0xb
+ 2009 007a 3B       		.uleb128 0x3b
+ 2010 007b 0B       		.uleb128 0xb
+ 2011 007c 49       		.uleb128 0x49
+ 2012 007d 13       		.uleb128 0x13
+ 2013 007e 02       		.uleb128 0x2
+ 2014 007f 0A       		.uleb128 0xa
+ 2015 0080 00       		.byte	0
+ 2016 0081 00       		.byte	0
+ 2017 0082 09       		.uleb128 0x9
+ 2018 0083 2E       		.uleb128 0x2e
+ 2019 0084 01       		.byte	0x1
+ 2020 0085 3F       		.uleb128 0x3f
+ 2021 0086 0C       		.uleb128 0xc
+ 2022 0087 03       		.uleb128 0x3
+ 2023 0088 08       		.uleb128 0x8
+ 2024 0089 3A       		.uleb128 0x3a
+ 2025 008a 0B       		.uleb128 0xb
+ 2026 008b 3B       		.uleb128 0x3b
+ 2027 008c 0B       		.uleb128 0xb
+ 2028 008d 49       		.uleb128 0x49
+ 2029 008e 13       		.uleb128 0x13
+ 2030 008f 3C       		.uleb128 0x3c
+ 2031 0090 0C       		.uleb128 0xc
+ 2032 0091 00       		.byte	0
+ 2033 0092 00       		.byte	0
+ 2034 0093 0A       		.uleb128 0xa
+ 2035 0094 18       		.uleb128 0x18
+ 2036 0095 00       		.byte	0
+ 2037 0096 00       		.byte	0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 45
+
+
+ 2038 0097 00       		.byte	0
+ 2039 0098 0B       		.uleb128 0xb
+ 2040 0099 2E       		.uleb128 0x2e
+ 2041 009a 00       		.byte	0
+ 2042 009b 3F       		.uleb128 0x3f
+ 2043 009c 0C       		.uleb128 0xc
+ 2044 009d 03       		.uleb128 0x3
+ 2045 009e 0E       		.uleb128 0xe
+ 2046 009f 3A       		.uleb128 0x3a
+ 2047 00a0 0B       		.uleb128 0xb
+ 2048 00a1 3B       		.uleb128 0x3b
+ 2049 00a2 0B       		.uleb128 0xb
+ 2050 00a3 27       		.uleb128 0x27
+ 2051 00a4 0C       		.uleb128 0xc
+ 2052 00a5 11       		.uleb128 0x11
+ 2053 00a6 01       		.uleb128 0x1
+ 2054 00a7 12       		.uleb128 0x12
+ 2055 00a8 01       		.uleb128 0x1
+ 2056 00a9 40       		.uleb128 0x40
+ 2057 00aa 06       		.uleb128 0x6
+ 2058 00ab 9642     		.uleb128 0x2116
+ 2059 00ad 0C       		.uleb128 0xc
+ 2060 00ae 00       		.byte	0
+ 2061 00af 00       		.byte	0
+ 2062 00b0 0C       		.uleb128 0xc
+ 2063 00b1 2E       		.uleb128 0x2e
+ 2064 00b2 01       		.byte	0x1
+ 2065 00b3 3F       		.uleb128 0x3f
+ 2066 00b4 0C       		.uleb128 0xc
+ 2067 00b5 03       		.uleb128 0x3
+ 2068 00b6 0E       		.uleb128 0xe
+ 2069 00b7 3A       		.uleb128 0x3a
+ 2070 00b8 0B       		.uleb128 0xb
+ 2071 00b9 3B       		.uleb128 0x3b
+ 2072 00ba 0B       		.uleb128 0xb
+ 2073 00bb 27       		.uleb128 0x27
+ 2074 00bc 0C       		.uleb128 0xc
+ 2075 00bd 11       		.uleb128 0x11
+ 2076 00be 01       		.uleb128 0x1
+ 2077 00bf 12       		.uleb128 0x12
+ 2078 00c0 01       		.uleb128 0x1
+ 2079 00c1 40       		.uleb128 0x40
+ 2080 00c2 06       		.uleb128 0x6
+ 2081 00c3 9642     		.uleb128 0x2116
+ 2082 00c5 0C       		.uleb128 0xc
+ 2083 00c6 01       		.uleb128 0x1
+ 2084 00c7 13       		.uleb128 0x13
+ 2085 00c8 00       		.byte	0
+ 2086 00c9 00       		.byte	0
+ 2087 00ca 0D       		.uleb128 0xd
+ 2088 00cb 04       		.uleb128 0x4
+ 2089 00cc 01       		.byte	0x1
+ 2090 00cd 0B       		.uleb128 0xb
+ 2091 00ce 0B       		.uleb128 0xb
+ 2092 00cf 3A       		.uleb128 0x3a
+ 2093 00d0 0B       		.uleb128 0xb
+ 2094 00d1 3B       		.uleb128 0x3b
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 46
+
+
+ 2095 00d2 0B       		.uleb128 0xb
+ 2096 00d3 01       		.uleb128 0x1
+ 2097 00d4 13       		.uleb128 0x13
+ 2098 00d5 00       		.byte	0
+ 2099 00d6 00       		.byte	0
+ 2100 00d7 0E       		.uleb128 0xe
+ 2101 00d8 28       		.uleb128 0x28
+ 2102 00d9 00       		.byte	0
+ 2103 00da 03       		.uleb128 0x3
+ 2104 00db 0E       		.uleb128 0xe
+ 2105 00dc 1C       		.uleb128 0x1c
+ 2106 00dd 0D       		.uleb128 0xd
+ 2107 00de 00       		.byte	0
+ 2108 00df 00       		.byte	0
+ 2109 00e0 0F       		.uleb128 0xf
+ 2110 00e1 01       		.uleb128 0x1
+ 2111 00e2 01       		.byte	0x1
+ 2112 00e3 49       		.uleb128 0x49
+ 2113 00e4 13       		.uleb128 0x13
+ 2114 00e5 01       		.uleb128 0x1
+ 2115 00e6 13       		.uleb128 0x13
+ 2116 00e7 00       		.byte	0
+ 2117 00e8 00       		.byte	0
+ 2118 00e9 10       		.uleb128 0x10
+ 2119 00ea 21       		.uleb128 0x21
+ 2120 00eb 00       		.byte	0
+ 2121 00ec 49       		.uleb128 0x49
+ 2122 00ed 13       		.uleb128 0x13
+ 2123 00ee 2F       		.uleb128 0x2f
+ 2124 00ef 0B       		.uleb128 0xb
+ 2125 00f0 00       		.byte	0
+ 2126 00f1 00       		.byte	0
+ 2127 00f2 11       		.uleb128 0x11
+ 2128 00f3 26       		.uleb128 0x26
+ 2129 00f4 00       		.byte	0
+ 2130 00f5 49       		.uleb128 0x49
+ 2131 00f6 13       		.uleb128 0x13
+ 2132 00f7 00       		.byte	0
+ 2133 00f8 00       		.byte	0
+ 2134 00f9 12       		.uleb128 0x12
+ 2135 00fa 34       		.uleb128 0x34
+ 2136 00fb 00       		.byte	0
+ 2137 00fc 03       		.uleb128 0x3
+ 2138 00fd 0E       		.uleb128 0xe
+ 2139 00fe 3A       		.uleb128 0x3a
+ 2140 00ff 0B       		.uleb128 0xb
+ 2141 0100 3B       		.uleb128 0x3b
+ 2142 0101 0B       		.uleb128 0xb
+ 2143 0102 49       		.uleb128 0x49
+ 2144 0103 13       		.uleb128 0x13
+ 2145 0104 3F       		.uleb128 0x3f
+ 2146 0105 0C       		.uleb128 0xc
+ 2147 0106 02       		.uleb128 0x2
+ 2148 0107 0A       		.uleb128 0xa
+ 2149 0108 00       		.byte	0
+ 2150 0109 00       		.byte	0
+ 2151 010a 00       		.byte	0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 47
+
+
+ 2152              		.section	.debug_loc,"",%progbits
+ 2153              	.Ldebug_loc0:
+ 2154              	.LLST0:
+ 2155 0000 00000000 		.4byte	.LFB33
+ 2156 0004 02000000 		.4byte	.LCFI0
+ 2157 0008 0200     		.2byte	0x2
+ 2158 000a 7D       		.byte	0x7d
+ 2159 000b 00       		.sleb128 0
+ 2160 000c 02000000 		.4byte	.LCFI0
+ 2161 0010 04000000 		.4byte	.LCFI1
+ 2162 0014 0200     		.2byte	0x2
+ 2163 0016 7D       		.byte	0x7d
+ 2164 0017 08       		.sleb128 8
+ 2165 0018 04000000 		.4byte	.LCFI1
+ 2166 001c F0000000 		.4byte	.LFE33
+ 2167 0020 0200     		.2byte	0x2
+ 2168 0022 77       		.byte	0x77
+ 2169 0023 08       		.sleb128 8
+ 2170 0024 00000000 		.4byte	0
+ 2171 0028 00000000 		.4byte	0
+ 2172              	.LLST1:
+ 2173 002c 00000000 		.4byte	.LFB34
+ 2174 0030 02000000 		.4byte	.LCFI2
+ 2175 0034 0200     		.2byte	0x2
+ 2176 0036 7D       		.byte	0x7d
+ 2177 0037 00       		.sleb128 0
+ 2178 0038 02000000 		.4byte	.LCFI2
+ 2179 003c 04000000 		.4byte	.LCFI3
+ 2180 0040 0200     		.2byte	0x2
+ 2181 0042 7D       		.byte	0x7d
+ 2182 0043 08       		.sleb128 8
+ 2183 0044 04000000 		.4byte	.LCFI3
+ 2184 0048 06000000 		.4byte	.LCFI4
+ 2185 004c 0200     		.2byte	0x2
+ 2186 004e 7D       		.byte	0x7d
+ 2187 004f 10       		.sleb128 16
+ 2188 0050 06000000 		.4byte	.LCFI4
+ 2189 0054 78000000 		.4byte	.LFE34
+ 2190 0058 0200     		.2byte	0x2
+ 2191 005a 77       		.byte	0x77
+ 2192 005b 10       		.sleb128 16
+ 2193 005c 00000000 		.4byte	0
+ 2194 0060 00000000 		.4byte	0
+ 2195              	.LLST2:
+ 2196 0064 00000000 		.4byte	.LFB35
+ 2197 0068 02000000 		.4byte	.LCFI5
+ 2198 006c 0200     		.2byte	0x2
+ 2199 006e 7D       		.byte	0x7d
+ 2200 006f 00       		.sleb128 0
+ 2201 0070 02000000 		.4byte	.LCFI5
+ 2202 0074 04000000 		.4byte	.LCFI6
+ 2203 0078 0200     		.2byte	0x2
+ 2204 007a 7D       		.byte	0x7d
+ 2205 007b 08       		.sleb128 8
+ 2206 007c 04000000 		.4byte	.LCFI6
+ 2207 0080 06000000 		.4byte	.LCFI7
+ 2208 0084 0200     		.2byte	0x2
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 48
+
+
+ 2209 0086 7D       		.byte	0x7d
+ 2210 0087 10       		.sleb128 16
+ 2211 0088 06000000 		.4byte	.LCFI7
+ 2212 008c 7C000000 		.4byte	.LFE35
+ 2213 0090 0200     		.2byte	0x2
+ 2214 0092 77       		.byte	0x77
+ 2215 0093 10       		.sleb128 16
+ 2216 0094 00000000 		.4byte	0
+ 2217 0098 00000000 		.4byte	0
+ 2218              	.LLST3:
+ 2219 009c 00000000 		.4byte	.LFB36
+ 2220 00a0 02000000 		.4byte	.LCFI8
+ 2221 00a4 0200     		.2byte	0x2
+ 2222 00a6 7D       		.byte	0x7d
+ 2223 00a7 00       		.sleb128 0
+ 2224 00a8 02000000 		.4byte	.LCFI8
+ 2225 00ac 04000000 		.4byte	.LCFI9
+ 2226 00b0 0200     		.2byte	0x2
+ 2227 00b2 7D       		.byte	0x7d
+ 2228 00b3 08       		.sleb128 8
+ 2229 00b4 04000000 		.4byte	.LCFI9
+ 2230 00b8 F8000000 		.4byte	.LFE36
+ 2231 00bc 0200     		.2byte	0x2
+ 2232 00be 77       		.byte	0x77
+ 2233 00bf 08       		.sleb128 8
+ 2234 00c0 00000000 		.4byte	0
+ 2235 00c4 00000000 		.4byte	0
+ 2236              	.LLST4:
+ 2237 00c8 00000000 		.4byte	.LFB37
+ 2238 00cc 02000000 		.4byte	.LCFI10
+ 2239 00d0 0200     		.2byte	0x2
+ 2240 00d2 7D       		.byte	0x7d
+ 2241 00d3 00       		.sleb128 0
+ 2242 00d4 02000000 		.4byte	.LCFI10
+ 2243 00d8 04000000 		.4byte	.LCFI11
+ 2244 00dc 0200     		.2byte	0x2
+ 2245 00de 7D       		.byte	0x7d
+ 2246 00df 0C       		.sleb128 12
+ 2247 00e0 04000000 		.4byte	.LCFI11
+ 2248 00e4 06000000 		.4byte	.LCFI12
+ 2249 00e8 0200     		.2byte	0x2
+ 2250 00ea 7D       		.byte	0x7d
+ 2251 00eb 18       		.sleb128 24
+ 2252 00ec 06000000 		.4byte	.LCFI12
+ 2253 00f0 30050000 		.4byte	.LFE37
+ 2254 00f4 0200     		.2byte	0x2
+ 2255 00f6 77       		.byte	0x77
+ 2256 00f7 18       		.sleb128 24
+ 2257 00f8 00000000 		.4byte	0
+ 2258 00fc 00000000 		.4byte	0
+ 2259              		.section	.debug_aranges,"",%progbits
+ 2260 0000 3C000000 		.4byte	0x3c
+ 2261 0004 0200     		.2byte	0x2
+ 2262 0006 00000000 		.4byte	.Ldebug_info0
+ 2263 000a 04       		.byte	0x4
+ 2264 000b 00       		.byte	0
+ 2265 000c 0000     		.2byte	0
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 49
+
+
+ 2266 000e 0000     		.2byte	0
+ 2267 0010 00000000 		.4byte	.LFB33
+ 2268 0014 F0000000 		.4byte	.LFE33-.LFB33
+ 2269 0018 00000000 		.4byte	.LFB34
+ 2270 001c 78000000 		.4byte	.LFE34-.LFB34
+ 2271 0020 00000000 		.4byte	.LFB35
+ 2272 0024 7C000000 		.4byte	.LFE35-.LFB35
+ 2273 0028 00000000 		.4byte	.LFB36
+ 2274 002c F8000000 		.4byte	.LFE36-.LFB36
+ 2275 0030 00000000 		.4byte	.LFB37
+ 2276 0034 30050000 		.4byte	.LFE37-.LFB37
+ 2277 0038 00000000 		.4byte	0
+ 2278 003c 00000000 		.4byte	0
+ 2279              		.section	.debug_ranges,"",%progbits
+ 2280              	.Ldebug_ranges0:
+ 2281 0000 00000000 		.4byte	.LFB33
+ 2282 0004 F0000000 		.4byte	.LFE33
+ 2283 0008 00000000 		.4byte	.LFB34
+ 2284 000c 78000000 		.4byte	.LFE34
+ 2285 0010 00000000 		.4byte	.LFB35
+ 2286 0014 7C000000 		.4byte	.LFE35
+ 2287 0018 00000000 		.4byte	.LFB36
+ 2288 001c F8000000 		.4byte	.LFE36
+ 2289 0020 00000000 		.4byte	.LFB37
+ 2290 0024 30050000 		.4byte	.LFE37
+ 2291 0028 00000000 		.4byte	0
+ 2292 002c 00000000 		.4byte	0
+ 2293              		.section	.debug_line,"",%progbits
+ 2294              	.Ldebug_line0:
+ 2295 0000 E9020000 		.section	.debug_str,"MS",%progbits,1
+ 2295      02005300 
+ 2295      00000201 
+ 2295      FB0E0D00 
+ 2295      01010101 
+ 2296              	.LASF41:
+ 2297 0000 72656769 		.ascii	"registre\000"
+ 2297      73747265 
+ 2297      00
+ 2298              	.LASF49:
+ 2299 0009 72427566 		.ascii	"rBuffer\000"
+ 2299      66657200 
+ 2300              	.LASF29:
+ 2301 0011 6E69725F 		.ascii	"nir_1\000"
+ 2301      3100
+ 2302              	.LASF30:
+ 2303 0017 6E69725F 		.ascii	"nir_2\000"
+ 2303      3200
+ 2304              	.LASF31:
+ 2305 001d 6E69725F 		.ascii	"nir_3\000"
+ 2305      3300
+ 2306              	.LASF46:
+ 2307 0023 4E42525F 		.ascii	"NBR_CHANGEMENTS_POSITION\000"
+ 2307      4348414E 
+ 2307      47454D45 
+ 2307      4E54535F 
+ 2307      504F5349 
+ 2308              	.LASF53:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 50
+
+
+ 2309 003c 474E5520 		.ascii	"GNU C 4.7.3 20130312 (release) [ARM/embedded-4_7-br"
+ 2309      4320342E 
+ 2309      372E3320 
+ 2309      32303133 
+ 2309      30333132 
+ 2310 006f 616E6368 		.ascii	"anch revision 196615]\000"
+ 2310      20726576 
+ 2310      6973696F 
+ 2310      6E203139 
+ 2310      36363135 
+ 2311              	.LASF28:
+ 2312 0085 76697369 		.ascii	"visible_3\000"
+ 2312      626C655F 
+ 2312      3300
+ 2313              	.LASF34:
+ 2314 008f 536C6565 		.ascii	"SleepMode\000"
+ 2314      704D6F64 
+ 2314      6500
+ 2315              	.LASF3:
+ 2316 0099 73686F72 		.ascii	"short unsigned int\000"
+ 2316      7420756E 
+ 2316      7369676E 
+ 2316      65642069 
+ 2316      6E7400
+ 2317              	.LASF35:
+ 2318 00ac 696E6974 		.ascii	"init_reset\000"
+ 2318      5F726573 
+ 2318      657400
+ 2319              	.LASF24:
+ 2320 00b7 706F7369 		.ascii	"position_init\000"
+ 2320      74696F6E 
+ 2320      5F696E69 
+ 2320      7400
+ 2321              	.LASF37:
+ 2322 00c5 65746174 		.ascii	"etat_actuel\000"
+ 2322      5F616374 
+ 2322      75656C00 
+ 2323              	.LASF52:
+ 2324 00d1 73746174 		.ascii	"status\000"
+ 2324      757300
+ 2325              	.LASF48:
+ 2326 00d8 77427566 		.ascii	"wBuffer\000"
+ 2326      66657200 
+ 2327              	.LASF22:
+ 2328 00e0 4368616E 		.ascii	"Changer_position\000"
+ 2328      6765725F 
+ 2328      706F7369 
+ 2328      74696F6E 
+ 2328      00
+ 2329              	.LASF12:
+ 2330 00f1 666C6F61 		.ascii	"float\000"
+ 2330      7400
+ 2331              	.LASF26:
+ 2332 00f7 76697369 		.ascii	"visible_1\000"
+ 2332      626C655F 
+ 2332      3100
+ 2333              	.LASF27:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 51
+
+
+ 2334 0101 76697369 		.ascii	"visible_2\000"
+ 2334      626C655F 
+ 2334      3200
+ 2335              	.LASF1:
+ 2336 010b 756E7369 		.ascii	"unsigned char\000"
+ 2336      676E6564 
+ 2336      20636861 
+ 2336      7200
+ 2337              	.LASF33:
+ 2338 0119 636F6D6D 		.ascii	"commande_moteur\000"
+ 2338      616E6465 
+ 2338      5F6D6F74 
+ 2338      65757200 
+ 2339              	.LASF5:
+ 2340 0129 6C6F6E67 		.ascii	"long unsigned int\000"
+ 2340      20756E73 
+ 2340      69676E65 
+ 2340      6420696E 
+ 2340      7400
+ 2341              	.LASF9:
+ 2342 013b 75696E74 		.ascii	"uint8\000"
+ 2342      3800
+ 2343              	.LASF43:
+ 2344 0141 4341535F 		.ascii	"CAS_ACTUEL\000"
+ 2344      41435455 
+ 2344      454C00
+ 2345              	.LASF47:
+ 2346 014c 61727261 		.ascii	"array\000"
+ 2346      7900
+ 2347              	.LASF55:
+ 2348 0152 463A5C55 		.ascii	"F:\\Utilisateurs\\demasson\\Documents\\EPM\\PSoC Cr"
+ 2348      74696C69 
+ 2348      73617465 
+ 2348      7572735C 
+ 2348      64656D61 
+ 2349 0180 6561746F 		.ascii	"eator\\EPM2.0\\EPM_parfait\\EYESAT_EPM\\EYESAT_EPM."
+ 2349      725C4550 
+ 2349      4D322E30 
+ 2349      5C45504D 
+ 2349      5F706172 
+ 2350 01af 63796473 		.ascii	"cydsn\000"
+ 2350      6E00
+ 2351              	.LASF18:
+ 2352 01b5 63616C63 		.ascii	"calcul_PDS_position\000"
+ 2352      756C5F50 
+ 2352      44535F70 
+ 2352      6F736974 
+ 2352      696F6E00 
+ 2353              	.LASF23:
+ 2354 01c9 636F6D6D 		.ascii	"commande_master\000"
+ 2354      616E6465 
+ 2354      5F6D6173 
+ 2354      74657200 
+ 2355              	.LASF13:
+ 2356 01d9 646F7562 		.ascii	"double\000"
+ 2356      6C6500
+ 2357              	.LASF36:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 52
+
+
+ 2358 01e0 74797065 		.ascii	"type_etat\000"
+ 2358      5F657461 
+ 2358      7400
+ 2359              	.LASF54:
+ 2360 01ea 2E5C6D61 		.ascii	".\\main.c\000"
+ 2360      696E2E63 
+ 2360      00
+ 2361              	.LASF15:
+ 2362 01f3 63797374 		.ascii	"cystatus\000"
+ 2362      61747573 
+ 2362      00
+ 2363              	.LASF11:
+ 2364 01fc 696E7438 		.ascii	"int8\000"
+ 2364      00
+ 2365              	.LASF25:
+ 2366 0201 6E6F6972 		.ascii	"noir_X\000"
+ 2366      5F5800
+ 2367              	.LASF10:
+ 2368 0208 75696E74 		.ascii	"uint32\000"
+ 2368      333200
+ 2369              	.LASF21:
+ 2370 020f 6D61696E 		.ascii	"main\000"
+ 2370      00
+ 2371              	.LASF8:
+ 2372 0214 756E7369 		.ascii	"unsigned int\000"
+ 2372      676E6564 
+ 2372      20696E74 
+ 2372      00
+ 2373              	.LASF42:
+ 2374 0221 636F6D6D 		.ascii	"commande_avant_reset\000"
+ 2374      616E6465 
+ 2374      5F617661 
+ 2374      6E745F72 
+ 2374      65736574 
+ 2375              	.LASF7:
+ 2376 0236 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 2376      206C6F6E 
+ 2376      6720756E 
+ 2376      7369676E 
+ 2376      65642069 
+ 2377              	.LASF32:
+ 2378 024d 6E69725F 		.ascii	"nir_neutre\000"
+ 2378      6E657574 
+ 2378      726500
+ 2379              	.LASF45:
+ 2380 0258 504F5349 		.ascii	"POSITION_SUIVANTE\000"
+ 2380      54494F4E 
+ 2380      5F535549 
+ 2380      56414E54 
+ 2380      4500
+ 2381              	.LASF44:
+ 2382 026a 504F5349 		.ascii	"POSITION_ACTUELLE\000"
+ 2382      54494F4E 
+ 2382      5F414354 
+ 2382      55454C4C 
+ 2382      4500
+ 2383              	.LASF16:
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 53
+
+
+ 2384 027c 73697A65 		.ascii	"sizetype\000"
+ 2384      74797065 
+ 2384      00
+ 2385              	.LASF6:
+ 2386 0285 6C6F6E67 		.ascii	"long long int\000"
+ 2386      206C6F6E 
+ 2386      6720696E 
+ 2386      7400
+ 2387              	.LASF14:
+ 2388 0293 63686172 		.ascii	"char\000"
+ 2388      00
+ 2389              	.LASF2:
+ 2390 0298 73686F72 		.ascii	"short int\000"
+ 2390      7420696E 
+ 2390      7400
+ 2391              	.LASF38:
+ 2392 02a2 65746174 		.ascii	"etat_futur\000"
+ 2392      5F667574 
+ 2392      757200
+ 2393              	.LASF17:
+ 2394 02ad 666F6E63 		.ascii	"fonction_I2C\000"
+ 2394      74696F6E 
+ 2394      5F493243 
+ 2394      00
+ 2395              	.LASF4:
+ 2396 02ba 6C6F6E67 		.ascii	"long int\000"
+ 2396      20696E74 
+ 2396      00
+ 2397              	.LASF40:
+ 2398 02c3 636F6D6D 		.ascii	"commande_ODB\000"
+ 2398      616E6465 
+ 2398      5F4F4442 
+ 2398      00
+ 2399              	.LASF0:
+ 2400 02d0 7369676E 		.ascii	"signed char\000"
+ 2400      65642063 
+ 2400      68617200 
+ 2401              	.LASF50:
+ 2402 02dc 706F7369 		.ascii	"position_connue\000"
+ 2402      74696F6E 
+ 2402      5F636F6E 
+ 2402      6E756500 
+ 2403              	.LASF39:
+ 2404 02ec 65657072 		.ascii	"eepromArray\000"
+ 2404      6F6D4172 
+ 2404      72617900 
+ 2405              	.LASF56:
+ 2406 02f8 6175746F 		.ascii	"automate\000"
+ 2406      6D617465 
+ 2406      00
+ 2407              	.LASF19:
+ 2408 0301 636F6D6D 		.ascii	"commande\000"
+ 2408      616E6465 
+ 2408      00
+ 2409              	.LASF20:
+ 2410 030a 5044535F 		.ascii	"PDS_position\000"
+ 2410      706F7369 
+ARM GAS  F:\UTILIS~1\demasson\AppData\Local\Temp\ccJVxp3i.s 			page 54
+
+
+ 2410      74696F6E 
+ 2410      00
+ 2411              	.LASF51:
+ 2412 0317 70626C6D 		.ascii	"pblm_reset\000"
+ 2412      5F726573 
+ 2412      657400
+ 2413              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.7.3 20130312 (release) [ARM/embedded-4_7-br
