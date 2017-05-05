@@ -7,7 +7,7 @@
  * CONFIDENTIAL AND PROPRIETARY INFORMATION
  * WHICH IS THE PROPERTY OF le CNES.
  * Redactors : Camille Demasson et Quang Viet NGUYEN 
- *
+ * Ozan Gokdemir
  * ========================================
 */
 
